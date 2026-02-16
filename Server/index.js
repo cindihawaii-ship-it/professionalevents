@@ -1,4 +1,4 @@
- const express = require('express');
+const express = require('express');
 const path = require('path');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
@@ -459,10 +459,30 @@ app.get('/api/vendors/saved', authenticateToken, async (req, res) => {
 
 app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
   try {
-    const { notes } = req.body;
+    const { notes, contact } = req.body;
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (notes !== undefined) {
+      updates.push(`notes = $${paramCount++}`);
+      values.push(notes);
+    }
+    if (contact !== undefined) {
+      updates.push(`contact = $${paramCount++}`);
+      values.push(contact);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    updates.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(req.params.id, req.user.userId);
+
     const result = await pool.query(
-      'UPDATE saved_vendors SET notes = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 AND user_id = $3 RETURNING *',
-      [notes, req.params.id, req.user.userId]
+      `UPDATE saved_vendors SET ${updates.join(', ')} WHERE id = $${paramCount} AND user_id = $${paramCount + 1} RETURNING *`,
+      values
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Vendor not found' });
     res.json(result.rows[0]);
