@@ -444,13 +444,13 @@ app.post('/api/vendors/save', authenticateToken, async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO saved_vendors
-       (user_id, event_id, vendor_name, category, location, rating, reviews, price_range, contact, website, notes, place_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+       (user_id, event_id, vendor_name, category, location, rating, reviews, price_range, contact, phone, website, notes, place_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
       [
         req.user.userId, eventId || null, vendorData.name, vendorData.category,
         vendorData.location || '', vendorData.rating || null, vendorData.reviews || 0,
-        vendorData.priceRange || '', vendorData.contact || '', vendorData.website || '',
-        vendorData.notes || '', vendorData.placeId || null,
+        vendorData.priceRange || '', vendorData.contact || '', vendorData.phone || '',
+        vendorData.website || '', vendorData.notes || '', vendorData.placeId || null,
       ]
     );
     res.status(201).json(result.rows[0]);
@@ -662,58 +662,58 @@ function generateSampleVendors(location, categories, minRating) {
   const vendors = [];
   const sampleData = {
     venue: [
-      { name: 'Golden Gate Club', rating: 5.0, reviews: 248, priceRange: '$$$', phone: '(555) 123-4567', website: 'https://goldengateclub.com' },
-      { name: 'The Conservatory', rating: 4.8, reviews: 182, priceRange: '$$$$', phone: '(555) 234-5678', website: 'https://theconservatory.com' },
-      { name: 'Bayview Estate', rating: 4.7, reviews: 135, priceRange: '$$$', phone: '(555) 345-6789', website: 'https://bayviewestate.com' },
-      { name: 'Sunset Pavilion', rating: 4.6, reviews: 92, priceRange: '$$', phone: '(555) 456-7890', website: 'https://sunsetpavilion.com' },
+      { name: 'Golden Gate Club', rating: 5.0, reviews: 248, priceRange: '$$$', phone: '(555) 123-4567', website: 'goldengateclub.com' },
+      { name: 'The Conservatory', rating: 4.8, reviews: 182, priceRange: '$$$$', phone: '(555) 234-5678', website: 'theconservatory.com' },
+      { name: 'Bayview Estate', rating: 4.7, reviews: 135, priceRange: '$$$', phone: '(555) 345-6789', website: 'bayviewestate.com' },
+      { name: 'Sunset Pavilion', rating: 4.6, reviews: 92, priceRange: '$$', phone: '(555) 456-7890', website: 'sunsetpavilion.com' },
     ],
     catering: [
-      { name: 'On The Roll Catering', rating: 4.9, reviews: 312, priceRange: '$$', phone: '(555) 567-8901', website: 'https://ontheroll.com' },
-      { name: 'Farm & Table Co.', rating: 4.8, reviews: 198, priceRange: '$$$', phone: '(555) 678-9012', website: 'https://farmandtable.com' },
-      { name: 'Savory Events', rating: 4.7, reviews: 167, priceRange: '$$', phone: '(555) 789-0123', website: 'https://savoryevents.com' },
-      { name: 'Coastal Cuisine Catering', rating: 4.6, reviews: 143, priceRange: '$$$', phone: '(555) 890-1234', website: 'https://coastalcuisine.com' },
+      { name: 'On The Roll Catering', rating: 4.9, reviews: 312, priceRange: '$$', phone: '(555) 567-8901', website: 'ontheroll.com' },
+      { name: 'Farm & Table Co.', rating: 4.8, reviews: 198, priceRange: '$$$', phone: '(555) 678-9012', website: 'farmandtable.com' },
+      { name: 'Savory Events', rating: 4.7, reviews: 167, priceRange: '$$', phone: '(555) 789-0123', website: 'savoryevents.com' },
+      { name: 'Coastal Cuisine Catering', rating: 4.6, reviews: 143, priceRange: '$$$', phone: '(555) 890-1234', website: 'coastalcuisine.com' },
     ],
     photography: [
-      { name: 'Avery Wong Photography', rating: 5.0, reviews: 156, priceRange: '$$$', phone: '(555) 901-2345', website: 'https://averywong.com' },
-      { name: 'Light & Bloom Studio', rating: 4.9, reviews: 203, priceRange: '$$', phone: '(555) 012-3456', website: 'https://lightandbloom.com' },
-      { name: 'Captured Moments', rating: 4.8, reviews: 124, priceRange: '$$', phone: '(555) 123-4568', website: 'https://capturedmoments.com' },
-      { name: 'Lens & Love Photography', rating: 4.7, reviews: 98, priceRange: '$$$', phone: '(555) 234-5679', website: 'https://lensandlove.com' },
+      { name: 'Avery Wong Photography', rating: 5.0, reviews: 156, priceRange: '$$$', phone: '(555) 901-2345', website: 'averywong.com' },
+      { name: 'Light & Bloom Studio', rating: 4.9, reviews: 203, priceRange: '$$', phone: '(555) 012-3456', website: 'lightandbloom.com' },
+      { name: 'Captured Moments', rating: 4.8, reviews: 124, priceRange: '$$', phone: '(555) 123-4568', website: 'capturedmoments.com' },
+      { name: 'Lens & Love Photography', rating: 4.7, reviews: 98, priceRange: '$$$', phone: '(555) 234-5679', website: 'lensandlove.com' },
     ],
     videography: [
-      { name: 'Cinematic Stories', rating: 4.9, reviews: 98, priceRange: '$$$', phone: '(555) 345-6780', website: 'https://cinematicstories.com' },
-      { name: 'Frame by Frame Films', rating: 4.8, reviews: 87, priceRange: '$$', phone: '(555) 456-7891', website: 'https://framebyframe.com' },
-      { name: 'Motion & Emotion Videos', rating: 4.7, reviews: 76, priceRange: '$$', phone: '(555) 567-8902', website: 'https://motionemotion.com' },
-      { name: 'Reel Moments Production', rating: 4.6, reviews: 65, priceRange: '$$$', phone: '(555) 678-9013', website: 'https://reelmoments.com' },
+      { name: 'Cinematic Stories', rating: 4.9, reviews: 98, priceRange: '$$$', phone: '(555) 345-6780', website: 'cinematicstories.com' },
+      { name: 'Frame by Frame Films', rating: 4.8, reviews: 87, priceRange: '$$', phone: '(555) 456-7891', website: 'framebyframe.com' },
+      { name: 'Motion & Emotion Videos', rating: 4.7, reviews: 76, priceRange: '$$', phone: '(555) 567-8902', website: 'motionemotion.com' },
+      { name: 'Reel Moments Production', rating: 4.6, reviews: 65, priceRange: '$$$', phone: '(555) 678-9013', website: 'reelmoments.com' },
     ],
     music: [
-      { name: 'Harmony Live Band', rating: 4.9, reviews: 145, priceRange: '$$', phone: '(555) 789-0124', website: 'https://harmonylive.com' },
-      { name: 'DJ Elara', rating: 4.9, reviews: 234, priceRange: '$$', phone: '(555) 890-1235', website: 'https://djelara.com' },
-      { name: 'Rhythm & Soul Entertainment', rating: 4.8, reviews: 187, priceRange: '$$$', phone: '(555) 901-2346', website: 'https://rhythmandsoul.com' },
-      { name: 'The Sound Wave DJs', rating: 4.7, reviews: 156, priceRange: '$$', phone: '(555) 012-3457', website: 'https://soundwavedjs.com' },
+      { name: 'Harmony Live Band', rating: 4.9, reviews: 145, priceRange: '$$', phone: '(555) 789-0124', website: 'harmonylive.com' },
+      { name: 'DJ Elara', rating: 4.9, reviews: 234, priceRange: '$$', phone: '(555) 890-1235', website: 'djelara.com' },
+      { name: 'Rhythm & Soul Entertainment', rating: 4.8, reviews: 187, priceRange: '$$$', phone: '(555) 901-2346', website: 'rhythmandsoul.com' },
+      { name: 'The Sound Wave DJs', rating: 4.7, reviews: 156, priceRange: '$$', phone: '(555) 012-3457', website: 'soundwavedjs.com' },
     ],
     florist: [
-      { name: 'Petal & Stem', rating: 5.0, reviews: 178, priceRange: '$$', phone: '(555) 123-4569', website: 'https://petalandstem.com' },
-      { name: 'Garden of Eve Florals', rating: 4.9, reviews: 142, priceRange: '$$$', phone: '(555) 234-5680', website: 'https://gardenofeve.com' },
-      { name: 'Bloom & Blossom', rating: 4.8, reviews: 134, priceRange: '$$', phone: '(555) 345-6781', website: 'https://bloomblossom.com' },
-      { name: 'Rose & Lily Designs', rating: 4.7, reviews: 112, priceRange: '$$$', phone: '(555) 456-7892', website: 'https://roselily.com' },
+      { name: 'Petal & Stem', rating: 5.0, reviews: 178, priceRange: '$$', phone: '(555) 123-4569', website: 'petalandstem.com' },
+      { name: 'Garden of Eve Florals', rating: 4.9, reviews: 142, priceRange: '$$$', phone: '(555) 234-5680', website: 'gardenofeve.com' },
+      { name: 'Bloom & Blossom', rating: 4.8, reviews: 134, priceRange: '$$', phone: '(555) 345-6781', website: 'bloomblossom.com' },
+      { name: 'Rose & Lily Designs', rating: 4.7, reviews: 112, priceRange: '$$$', phone: '(555) 456-7892', website: 'roselily.com' },
     ],
     planner: [
-      { name: 'Grace & Gather Events', rating: 5.0, reviews: 92, priceRange: '$$$', phone: '(555) 567-8903', website: 'https://graceandgather.com' },
-      { name: 'Elegant Affairs Co.', rating: 4.9, reviews: 116, priceRange: '$$$$', phone: '(555) 678-9014', website: 'https://elegantaffairs.com' },
-      { name: 'Dream Day Planners', rating: 4.8, reviews: 87, priceRange: '$$$', phone: '(555) 789-0125', website: 'https://dreamdayplanners.com' },
-      { name: 'Perfect Moments Planning', rating: 4.7, reviews: 73, priceRange: '$$', phone: '(555) 890-1236', website: 'https://perfectmoments.com' },
+      { name: 'Grace & Gather Events', rating: 5.0, reviews: 92, priceRange: '$$$', phone: '(555) 567-8903', website: 'graceandgather.com' },
+      { name: 'Elegant Affairs Co.', rating: 4.9, reviews: 116, priceRange: '$$$$', phone: '(555) 678-9014', website: 'elegantaffairs.com' },
+      { name: 'Dream Day Planners', rating: 4.8, reviews: 87, priceRange: '$$$', phone: '(555) 789-0125', website: 'dreamdayplanners.com' },
+      { name: 'Perfect Moments Planning', rating: 4.7, reviews: 73, priceRange: '$$', phone: '(555) 890-1236', website: 'perfectmoments.com' },
     ],
     transport: [
-      { name: 'Premier Limousine', rating: 4.8, reviews: 201, priceRange: '$$', phone: '(555) 901-2347', website: 'https://premierlimo.com' },
-      { name: 'Luxury Ride Services', rating: 4.7, reviews: 156, priceRange: '$$$', phone: '(555) 012-3458', website: 'https://luxuryride.com' },
-      { name: 'Classic Car Rentals', rating: 4.7, reviews: 134, priceRange: '$$', phone: '(555) 123-4570', website: 'https://classiccarrentals.com' },
-      { name: 'Elite Transportation', rating: 4.6, reviews: 98, priceRange: '$$$', phone: '(555) 234-5681', website: 'https://elitetrans.com' },
+      { name: 'Premier Limousine', rating: 4.8, reviews: 201, priceRange: '$$', phone: '(555) 901-2347', website: 'premierlimo.com' },
+      { name: 'Luxury Ride Services', rating: 4.7, reviews: 156, priceRange: '$$$', phone: '(555) 012-3458', website: 'luxuryride.com' },
+      { name: 'Classic Car Rentals', rating: 4.7, reviews: 134, priceRange: '$$', phone: '(555) 123-4570', website: 'classiccarrentals.com' },
+      { name: 'Elite Transportation', rating: 4.6, reviews: 98, priceRange: '$$$', phone: '(555) 234-5681', website: 'elitetrans.com' },
     ],
     cake: [
-      { name: 'Sweet Layers Bakery', rating: 5.0, reviews: 267, priceRange: '$$', phone: '(555) 345-6782', website: 'https://sweetlayers.com' },
-      { name: 'Flour & Fondant', rating: 4.9, reviews: 189, priceRange: '$$$', phone: '(555) 456-7893', website: 'https://flourfondant.com' },
-      { name: 'Sugar & Spice Cakes', rating: 4.8, reviews: 176, priceRange: '$$', phone: '(555) 567-8904', website: 'https://sugarspice.com' },
-      { name: 'Divine Desserts Studio', rating: 4.7, reviews: 143, priceRange: '$$$', phone: '(555) 678-9015', website: 'https://divinedesserts.com' },
+      { name: 'Sweet Layers Bakery', rating: 5.0, reviews: 267, priceRange: '$$', phone: '(555) 345-6782', website: 'sweetlayers.com' },
+      { name: 'Flour & Fondant', rating: 4.9, reviews: 189, priceRange: '$$$', phone: '(555) 456-7893', website: 'flourfondant.com' },
+      { name: 'Sugar & Spice Cakes', rating: 4.8, reviews: 176, priceRange: '$$', phone: '(555) 567-8904', website: 'sugarspice.com' },
+      { name: 'Divine Desserts Studio', rating: 4.7, reviews: 143, priceRange: '$$$', phone: '(555) 678-9015', website: 'divinedesserts.com' },
     ],
   };
 
@@ -721,7 +721,7 @@ function generateSampleVendors(location, categories, minRating) {
     const items = sampleData[cat] || [];
     for (const item of items) {
       if (minRating && item.rating < parseFloat(minRating)) continue;
-      vendors.push({ ...item, category: cat, location: loc, contact: '', phone: item.phone || '', website: item.website || '' });
+      vendors.push({ ...item, category: cat, location: loc, contact: '', phone: item.phone || '', website: '' });
     }
   }
   return vendors;
