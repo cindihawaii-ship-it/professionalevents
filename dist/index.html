@@ -1,102 +1,1077 @@
-Event Planner Pro
-Home
-Dashboard
-Plan an Event
-Sign In
-Curated Vendor Discovery
-Your Dream Event, Effortlessly Planned
-Discover top-rated venues, caterers, photographers, and more — handpicked for your location, style, and budget
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Event Planner Pro - Curated Vendor Discovery for Beautiful Events</title>
+<meta name="description" content="Discover and book the perfect vendors for your dream event">
+<meta name="theme-color" content="#d4b896">
+<link rel="manifest" href="/manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Nunito+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#faf8f5;--sand:#f0ebe3;--blush:#f2e0d5;--sage:#c5cfc0;--sage-light:#dfe6db;
+  --dusty-rose:#d4a0a0;--mauve:#c9a9b8;--champagne:#d4b896;--warm-gray:#8c8279;
+  --charcoal:#3d3733;--soft-black:#2c2825;--white:#ffffff;--linen:#faf6f1;
+  --font-heading:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --font-body:'Nunito Sans','Segoe UI',Roboto,sans-serif;
+}
+body{font-family:var(--font-body);line-height:1.7;color:var(--charcoal);background:var(--cream);min-height:100vh;font-weight:400;font-size:16px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+img{max-width:100%}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
 
-Start Planning
-View Pricing
-• • •
-Why Choose Us
-Everything You Need, Beautifully Organized
-From discovery to booking day, we handle the details so you can focus on what matters most
-Smart Vendor Discovery
-Find the perfect vendors based on your location, budget, and style preferences — with ratings and reviews you can trust
+/* Navigation */
+.nav-bar{background:rgba(250,248,245,0.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(196,188,177,0.3);position:sticky;top:0;z-index:100}
+.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.logo{font-family:var(--font-heading);font-size:1.6rem;font-weight:600;color:var(--charcoal);letter-spacing:0.02em}
+.logo span{color:var(--dusty-rose)}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-links a{font-size:0.9rem;padding:8px 18px;border-radius:6px;transition:all 0.3s;color:var(--warm-gray);font-weight:500;letter-spacing:0.03em;text-transform:uppercase}
+.nav-links a:hover{color:var(--charcoal);background:var(--sand)}
+.btn-nav{background:var(--charcoal)!important;color:var(--cream)!important;border-radius:6px!important;font-weight:600!important}
+.btn-nav:hover{background:var(--soft-black)!important}
 
-Curated Recommendations
-Receive personalized vendor suggestions tailored to your event type, with detailed pricing and portfolio previews
+/* Hero */
+.hero{background:linear-gradient(160deg,var(--linen) 0%,var(--blush) 40%,var(--sage-light) 100%);padding:100px 24px 120px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(212,176,150,0.15),transparent 70%)}
+.hero::after{content:'';position:absolute;bottom:-30%;left:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(197,207,192,0.2),transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:720px;margin:0 auto}
+.hero-label{font-family:var(--font-body);text-transform:uppercase;letter-spacing:0.25em;font-size:0.8rem;color:var(--warm-gray);margin-bottom:24px;font-weight:600}
+.hero h1{font-family:var(--font-heading);font-size:clamp(2.8rem,6vw,4.2rem);font-weight:400;line-height:1.15;color:var(--soft-black);margin-bottom:24px}
+.hero h1 em{font-style:italic;color:var(--dusty-rose)}
+.hero p{font-size:1.15rem;color:var(--warm-gray);margin-bottom:40px;line-height:1.8;font-weight:300;max-width:560px;margin-left:auto;margin-right:auto}
+.btn-primary{display:inline-block;background:var(--charcoal);color:var(--cream);padding:16px 40px;border-radius:6px;font-size:0.9rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;border:none;cursor:pointer}
+.btn-primary:hover{background:var(--soft-black);transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.12)}
+.btn-outline{display:inline-block;background:transparent;color:var(--charcoal);padding:16px 40px;border-radius:6px;font-size:0.9rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;border:1.5px solid var(--charcoal);cursor:pointer}
+.btn-outline:hover{background:var(--charcoal);color:var(--cream)}
+.hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
 
-Booking & Scheduling
-Track appointments, schedule tastings and tours, and manage every vendor interaction in one elegant space
+/* Divider */
+.divider{text-align:center;padding:60px 0;color:var(--mauve);font-size:1.5rem;letter-spacing:0.5em}
 
-Location-Based Search
-Find vendors near your venue with distance filtering, ensuring convenience for you and your guests
+/* Features */
+.features{padding:80px 24px;background:var(--white)}
+.section-label{font-family:var(--font-body);text-transform:uppercase;letter-spacing:0.25em;font-size:0.75rem;color:var(--dusty-rose);text-align:center;margin-bottom:12px;font-weight:600}
+.section-title{font-family:var(--font-heading);font-size:clamp(2rem,4vw,2.8rem);font-weight:400;text-align:center;margin-bottom:16px;color:var(--soft-black)}
+.section-subtitle{text-align:center;color:var(--warm-gray);margin-bottom:56px;font-size:1.05rem;font-weight:300;max-width:520px;margin-left:auto;margin-right:auto}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:32px}
+.feature-card{padding:36px 28px;border-radius:12px;border:1px solid var(--sand);background:var(--linen);transition:all 0.4s}
+.feature-card:hover{border-color:var(--mauve);box-shadow:0 12px 40px rgba(0,0,0,0.06);transform:translateY(-4px)}
+.feature-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.2rem}
+.icon-blush{background:var(--blush);color:var(--dusty-rose)}
+.icon-sage{background:var(--sage-light);color:#7a8f72}
+.icon-sand{background:var(--sand);color:var(--champagne)}
+.icon-mauve{background:rgba(201,169,184,0.2);color:var(--mauve)}
+.icon-cream{background:rgba(212,184,150,0.2);color:var(--champagne)}
+.icon-rose{background:rgba(212,160,160,0.15);color:var(--dusty-rose)}
+.feature-card h3{font-family:var(--font-heading);font-size:1.4rem;font-weight:500;margin-bottom:10px;color:var(--soft-black)}
+.feature-card p{color:var(--warm-gray);font-size:0.95rem;line-height:1.7;font-weight:300}
+.icon-svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
-Private Notes & Contacts
-Keep detailed notes on every vendor conversation, track follow-ups, and never lose an important detail
+/* How It Works */
+.how-section{padding:80px 24px;background:linear-gradient(180deg,var(--cream),var(--sand))}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:40px;margin-top:56px}
+.step{text-align:center;position:relative}
+.step-num{font-family:var(--font-heading);font-size:3rem;font-weight:300;color:var(--dusty-rose);opacity:0.5;margin-bottom:8px;line-height:1}
+.step h3{font-family:var(--font-heading);font-size:1.3rem;font-weight:500;margin-bottom:10px;color:var(--soft-black)}
+.step p{color:var(--warm-gray);font-size:0.9rem;font-weight:300;line-height:1.7}
 
-Planning Checklist
-Stay on track with a curated timeline of tasks — from venue tours to final headcount, nothing gets overlooked
+/* Pricing */
+.pricing{padding:80px 24px;background:var(--white)}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:960px;margin:0 auto}
+.price-card{padding:40px 32px;border-radius:12px;border:1px solid var(--sand);background:var(--linen);position:relative;transition:all 0.3s}
+.price-card:hover{box-shadow:0 12px 40px rgba(0,0,0,0.06)}
+.price-card.featured{border:2px solid var(--dusty-rose);background:var(--white)}
+.price-card.premium{border:1.5px solid var(--champagne)}
+.featured-label{font-family:var(--font-body);font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--dusty-rose);margin-bottom:16px}
+.price-card h3{font-family:var(--font-heading);font-size:1.5rem;font-weight:500;margin-bottom:4px;color:var(--soft-black)}
+.price-amount{font-family:var(--font-heading);font-size:2.8rem;font-weight:600;color:var(--soft-black);line-height:1.2}
+.price-period{font-size:0.9rem;color:var(--warm-gray);font-weight:300}
+.price-features{list-style:none;margin:28px 0;padding:0}
+.price-features li{padding:8px 0;color:var(--warm-gray);font-size:0.92rem;border-bottom:1px solid rgba(240,235,227,0.6);display:flex;align-items:center;gap:10px;font-weight:400}
+.price-features li:last-child{border:none}
+.check{color:var(--sage);font-size:1rem}
+.btn-card{display:block;width:100%;text-align:center;padding:14px 24px;border-radius:6px;font-size:0.85rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;cursor:pointer;border:none}
+.btn-card-primary{background:var(--charcoal);color:var(--cream)}
+.btn-card-primary:hover{background:var(--soft-black)}
+.btn-card-outline{background:transparent;color:var(--charcoal);border:1.5px solid var(--charcoal)}
+.btn-card-outline:hover{background:var(--charcoal);color:var(--cream)}
 
-Your Journey
-Four Simple Steps to Your Perfect Day
-01
-Share Your Vision
-Tell us your event type, location, date, guest count, and budget
+/* CTA */
+.cta{padding:100px 24px;background:linear-gradient(160deg,var(--blush),var(--sage-light));text-align:center}
+.cta h2{font-family:var(--font-heading);font-size:clamp(2rem,4vw,3rem);font-weight:400;color:var(--soft-black);margin-bottom:16px}
+.cta p{color:var(--warm-gray);font-size:1.1rem;margin-bottom:36px;font-weight:300}
 
-02
-Discover Vendors
-We curate the best-rated vendors near your venue, matched to your style
+/* Footer */
+footer{background:var(--soft-black);color:rgba(250,248,245,0.5);padding:48px 24px;text-align:center;font-size:0.85rem}
+footer .logo{color:rgba(250,248,245,0.8);margin-bottom:12px;font-size:1.2rem}
+footer .logo span{color:var(--dusty-rose)}
 
-03
-Compare & Connect
-Review portfolios, read reviews, and save your favorites all in one place
+/* Pages */
+.page{display:none}
+.page.active{display:block}
 
-04
-Book with Confidence
-Schedule appointments, track bookings, and manage every detail through your big day
+/* Dashboard Page */
+.page-header{background:linear-gradient(160deg,var(--linen),var(--blush));padding:40px 24px;border-bottom:1px solid var(--sand)}
+.page-header h1{font-family:var(--font-heading);font-size:2.2rem;font-weight:400;color:var(--soft-black)}
+.page-header p{color:var(--warm-gray);font-weight:300}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--sand);background:var(--white)}
+.tab{padding:14px 24px;font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--warm-gray);border-bottom:2px solid transparent;cursor:pointer;transition:all 0.3s;background:none;border-top:none;border-left:none;border-right:none}
+.tab.active{color:var(--dusty-rose);border-bottom-color:var(--dusty-rose)}
+.tab:hover{color:var(--charcoal)}
+.content-area{padding:32px 24px;background:var(--cream);min-height:60vh}
+.event-card{background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:28px;margin-bottom:20px;transition:all 0.3s;cursor:pointer}
+.event-card:hover{box-shadow:0 8px 30px rgba(0,0,0,0.06);border-color:var(--mauve)}
+.event-card h3{font-family:var(--font-heading);font-size:1.5rem;font-weight:500;color:var(--soft-black);margin-bottom:8px}
+.event-meta{display:flex;flex-wrap:wrap;gap:16px;color:var(--warm-gray);font-size:0.88rem;margin-bottom:16px}
+.event-meta span{display:flex;align-items:center;gap:6px}
+.progress-bar{width:100%;height:6px;background:var(--sand);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:linear-gradient(to right,var(--sage),var(--dusty-rose));border-radius:3px;transition:width 0.6s ease}
+.tag{display:inline-block;padding:4px 12px;border-radius:4px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em}
+.tag-blush{background:var(--blush);color:#a07060}
+.tag-sage{background:var(--sage-light);color:#5a6b54}
 
-Pricing
-Invest in Your Perfect Event
-Transparent pricing with no hidden fees
-Essentials
-Free
-✓
-Create 1 event
-✓
-Search up to 20 vendors
-✓
-Basic vendor profiles
-✓
-Email support
-Get Started
-Most Popular
-Professional
-$29 / event
-✓
-Unlimited vendor search
-✓
-Curated recommendations
-✓
-Contact notes & scheduling
-✓
-Budget tracking
-✓
-Priority support
-✓
-Export reports
-Get Started
-Premier
-$99 / year
-✓
-Everything in Professional
-✓
-Unlimited events
-✓
-Vendor communication tools
-✓
-Guest list management
-✓
-Document storage
-✓
-VIP concierge support
-Get Started
-Ready to Start Planning?
-Join thousands of couples and event planners who trust us to find the perfect vendors
+/* Vendor Cards */
+.vendor-card{background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:24px;margin-bottom:16px;transition:all 0.3s}
+.vendor-card:hover{border-color:var(--dusty-rose);box-shadow:0 8px 30px rgba(0,0,0,0.06)}
+.vendor-card h4{font-family:var(--font-heading);font-size:1.3rem;font-weight:500;color:var(--soft-black);margin-bottom:6px}
+.vendor-info{display:flex;flex-wrap:wrap;gap:12px;font-size:0.85rem;color:var(--warm-gray);margin-bottom:12px}
+.stars{color:var(--champagne)}
+.note-box{background:var(--linen);border-left:3px solid var(--champagne);padding:12px 16px;margin:12px 0;border-radius:0 8px 8px 0;font-size:0.9rem;color:var(--charcoal)}
+.vendor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn-sm{padding:8px 18px;border-radius:6px;font-size:0.78rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;border:1.5px solid var(--charcoal)}
+.btn-sm-fill{background:var(--charcoal);color:var(--cream);border:none}
+.btn-sm-fill:hover{background:var(--soft-black)}
+.btn-sm:hover{background:var(--charcoal);color:var(--cream)}
 
-Begin Your Journey
-Event Planner Pro
-© 2026 Event Planner Pro. All rights reserved.
+/* Appointment Cards */
+.apt-card{background:var(--white);border:1px solid var(--sand);border-left:4px solid var(--dusty-rose);border-radius:0 12px 12px 0;padding:24px;margin-bottom:16px}
+.apt-card h4{font-family:var(--font-heading);font-size:1.2rem;font-weight:500;color:var(--soft-black);margin-bottom:4px}
+.apt-type{color:var(--warm-gray);font-size:0.9rem;margin-bottom:12px}
+.apt-details{display:flex;gap:24px;color:var(--charcoal);font-size:0.9rem;margin-bottom:12px}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.status-confirmed{background:var(--sage-light);color:#4a6341}
+.status-pending{background:rgba(212,184,150,0.25);color:#8a6d4b}
+
+/* Create Event */
+.form-section{background:var(--white);border:1px solid var(--sand);border-radius:12px;padding:32px;margin-bottom:24px}
+.form-section h2{font-family:var(--font-heading);font-size:1.6rem;font-weight:500;color:var(--soft-black);margin-bottom:24px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:0.85rem;font-weight:600;color:var(--charcoal);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em}
+.form-input{width:100%;padding:12px 16px;border:1.5px solid var(--sand);border-radius:8px;font-size:1rem;font-family:var(--font-body);color:var(--charcoal);background:var(--linen);transition:all 0.3s;outline:none}
+.form-input:focus{border-color:var(--dusty-rose);background:var(--white);box-shadow:0 0 0 3px rgba(212,160,160,0.15)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.cat-btn{padding:16px 12px;border:1.5px solid var(--sand);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--linen)}
+.cat-btn:hover{border-color:var(--mauve)}
+.cat-btn.selected{border-color:var(--dusty-rose);background:var(--blush)}
+.cat-btn .emoji{font-size:1.5rem;display:block;margin-bottom:6px}
+.cat-btn .label{font-size:0.82rem;font-weight:600;color:var(--charcoal)}
+.form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:32px}
+
+/* Auth Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,40,37,0.45);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:48px 40px;max-width:440px;width:90%;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.15);animation:modalIn 0.3s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:1.5rem;color:var(--warm-gray);cursor:pointer;padding:4px;line-height:1;transition:color 0.2s}
+.modal-close:hover{color:var(--charcoal)}
+.modal h2{font-family:var(--font-heading);font-size:2rem;font-weight:500;color:var(--soft-black);margin-bottom:8px;text-align:center}
+.modal .modal-subtitle{text-align:center;color:var(--warm-gray);font-size:0.95rem;margin-bottom:28px;font-weight:300}
+.modal .form-group{margin-bottom:16px}
+.modal .form-group label{font-size:0.8rem}
+.modal .form-input{background:var(--cream)}
+.modal .btn-primary{width:100%;text-align:center;padding:14px;margin-top:8px}
+.modal-switch{text-align:center;margin-top:20px;font-size:0.9rem;color:var(--warm-gray)}
+.modal-switch a{color:var(--dusty-rose);font-weight:600;cursor:pointer;text-decoration:underline}
+.modal-switch a:hover{color:var(--charcoal)}
+.modal-error{background:rgba(212,160,160,0.15);border:1px solid var(--dusty-rose);color:#8a4a4a;border-radius:8px;padding:10px 16px;font-size:0.88rem;margin-bottom:16px;display:none}
+.modal-error.visible{display:block}
+.user-greeting{font-size:0.88rem;color:var(--warm-gray);font-weight:500}
+.user-greeting strong{color:var(--charcoal)}
+
+/* Toast Notification */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--charcoal);color:var(--cream);padding:14px 24px;border-radius:10px;font-size:0.9rem;z-index:2000;box-shadow:0 8px 30px rgba(0,0,0,0.2);transform:translateY(100px);opacity:0;transition:all 0.4s ease;pointer-events:none;max-width:360px}
+.toast.visible{transform:translateY(0);opacity:1;pointer-events:auto}
+.toast.error{background:#8a4a4a}
+.toast.success{background:#4a6341}
+
+/* Empty State */
+.empty-state{text-align:center;padding:60px 20px;color:var(--warm-gray)}
+.empty-state h3{font-family:var(--font-heading);font-size:1.6rem;color:var(--charcoal);margin-bottom:8px;font-weight:400}
+.empty-state p{margin-bottom:24px;font-weight:300}
+
+/* Loading Spinner */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(250,248,245,0.3);border-top-color:var(--cream);border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-loading{opacity:0.7;pointer-events:none}
+
+/* Responsive */
+@media(max-width:768px){
+  .nav-inner{flex-direction:column;gap:12px}
+  .hero{padding:60px 24px 80px}
+  .features-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .pricing-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .category-grid{grid-template-columns:repeat(3,1fr)}
+  .hero-buttons{flex-direction:column;align-items:center}
+  .event-meta{flex-direction:column;gap:6px}
+  .modal{padding:32px 24px;margin:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav-bar">
+  <div class="container nav-inner">
+    <div class="logo">Event Planner <span>Pro</span></div>
+    <div class="nav-links">
+      <a href="#" onclick="showPage('home')">Home</a>
+      <a href="#" onclick="requireAuth('dashboard')">Dashboard</a>
+      <a href="#" onclick="requireAuth('create')">Plan an Event</a>
+      <span id="nav-user-area">
+        <a href="#" onclick="openAuthModal()" class="btn-nav" id="nav-signin-btn">Sign In</a>
+      </span>
+    </div>
+  </div>
+</nav>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+    <h2 id="auth-modal-title">Welcome Back</h2>
+    <p class="modal-subtitle" id="auth-modal-subtitle">Sign in to manage your events and vendors</p>
+    <div class="modal-error" id="auth-error"></div>
+    <form id="auth-form" onsubmit="handleAuth(event)">
+      <div class="form-group" id="auth-name-group" style="display:none">
+        <label>Your Name</label>
+        <input type="text" class="form-input" id="auth-name" placeholder="e.g., Sarah Mitchell" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-input" id="auth-email" placeholder="hello@example.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-input" id="auth-password" placeholder="At least 6 characters" required minlength="6" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-primary" id="auth-submit-btn">Sign In</button>
+    </form>
+    <div class="modal-switch" id="auth-switch">
+      Don't have an account? <a onclick="toggleAuthMode()">Create one</a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ==================== HOME PAGE ==================== -->
+<div id="page-home" class="page active">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-label">Curated Vendor Discovery</div>
+      <h1>Your Dream Event, <em>Effortlessly Planned</em></h1>
+      <p>Discover top-rated venues, caterers, photographers, and more — handpicked for your location, style, and budget</p>
+      <div class="hero-buttons">
+        <a href="#" onclick="requireAuth('create')" class="btn-primary">Start Planning</a>
+        <a href="#pricing" class="btn-outline">View Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider">&#8226; &#8226; &#8226;</div>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <div class="section-label">Why Choose Us</div>
+      <div class="section-title">Everything You Need, Beautifully Organized</div>
+      <div class="section-subtitle">From discovery to booking day, we handle the details so you can focus on what matters most</div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon icon-blush">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>Smart Vendor Discovery</h3>
+          <p>Find the perfect vendors based on your location, budget, and style preferences — with ratings and reviews you can trust</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon icon-sage">
+            <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <h3>Curated Recommendations</h3>
+          <p>Receive personalized vendor suggestions tailored to your event type, with detailed pricing and portfolio previews</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon icon-sand">
+            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <h3>Booking & Scheduling</h3>
+          <p>Track appointments, schedule tastings and tours, and manage every vendor interaction in one elegant space</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon icon-mauve">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3>Location-Based Search</h3>
+          <p>Find vendors near your venue with distance filtering, ensuring convenience for you and your guests</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon icon-cream">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <h3>Private Notes & Contacts</h3>
+          <p>Keep detailed notes on every vendor conversation, track follow-ups, and never lose an important detail</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon icon-rose">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3>Planning Checklist</h3>
+          <p>Stay on track with a curated timeline of tasks — from venue tours to final headcount, nothing gets overlooked</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-section">
+    <div class="container">
+      <div class="section-label">Your Journey</div>
+      <div class="section-title">Four Simple Steps to Your Perfect Day</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Share Your Vision</h3>
+          <p>Tell us your event type, location, date, guest count, and budget</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Discover Vendors</h3>
+          <p>We curate the best-rated vendors near your venue, matched to your style</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Compare & Connect</h3>
+          <p>Review portfolios, read reviews, and save your favorites all in one place</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <h3>Book with Confidence</h3>
+          <p>Schedule appointments, track bookings, and manage every detail through your big day</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-label">Pricing</div>
+      <div class="section-title">Invest in Your Perfect Event</div>
+      <div class="section-subtitle">Transparent pricing with no hidden fees</div>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Essentials</h3>
+          <div><span class="price-amount">Free</span></div>
+          <ul class="price-features">
+            <li><span class="check">&#10003;</span> Create 1 event</li>
+            <li><span class="check">&#10003;</span> Search up to 20 vendors</li>
+            <li><span class="check">&#10003;</span> Basic vendor profiles</li>
+            <li><span class="check">&#10003;</span> Email support</li>
+          </ul>
+          <button class="btn-card btn-card-outline" onclick="requireAuth('create')">Get Started</button>
+        </div>
+        <div class="price-card featured">
+          <div class="featured-label">Most Popular</div>
+          <h3>Professional</h3>
+          <div><span class="price-amount">$29</span><span class="price-period"> / event</span></div>
+          <ul class="price-features">
+            <li><span class="check">&#10003;</span> Unlimited vendor search</li>
+            <li><span class="check">&#10003;</span> Curated recommendations</li>
+            <li><span class="check">&#10003;</span> Contact notes & scheduling</li>
+            <li><span class="check">&#10003;</span> Budget tracking</li>
+            <li><span class="check">&#10003;</span> Priority support</li>
+            <li><span class="check">&#10003;</span> Export reports</li>
+          </ul>
+          <button class="btn-card btn-card-primary" onclick="handleUpgrade('professional')">Get Started</button>
+        </div>
+        <div class="price-card premium">
+          <h3>Premier</h3>
+          <div><span class="price-amount">$99</span><span class="price-period"> / year</span></div>
+          <ul class="price-features">
+            <li><span class="check">&#10003;</span> Everything in Professional</li>
+            <li><span class="check">&#10003;</span> Unlimited events</li>
+            <li><span class="check">&#10003;</span> Vendor communication tools</li>
+            <li><span class="check">&#10003;</span> Guest list management</li>
+            <li><span class="check">&#10003;</span> Document storage</li>
+            <li><span class="check">&#10003;</span> VIP concierge support</li>
+          </ul>
+          <button class="btn-card btn-card-outline" onclick="handleUpgrade('premier')">Get Started</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to Start Planning?</h2>
+      <p>Join thousands of couples and event planners who trust us to find the perfect vendors</p>
+      <a href="#" onclick="requireAuth('create')" class="btn-primary">Begin Your Journey</a>
+    </div>
+  </section>
+</div>
+
+<!-- ==================== DASHBOARD PAGE ==================== -->
+<div id="page-dashboard" class="page">
+  <div class="page-header">
+    <div class="container">
+      <h1>My Events</h1>
+      <p>Manage your events, vendors, and appointments</p>
+    </div>
+  </div>
+  <div class="tabs container">
+    <button class="tab active" onclick="switchTab(this,'tab-events')">My Events</button>
+    <button class="tab" onclick="switchTab(this,'tab-vendors')">Saved Vendors</button>
+    <button class="tab" onclick="switchTab(this,'tab-schedule')">Schedule</button>
+  </div>
+  <div class="content-area">
+    <div class="container">
+      <!-- Events Tab -->
+      <div id="tab-events" class="tab-content active">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+          <h2 style="font-family:var(--font-heading);font-size:1.4rem;font-weight:500;color:var(--soft-black)">Upcoming Events</h2>
+          <button class="btn-primary" style="padding:10px 24px;font-size:0.8rem" onclick="showPage('create')">+ New Event</button>
+        </div>
+        <div id="events-list">
+          <div class="empty-state">
+            <h3>No Events Yet</h3>
+            <p>Start planning your first event to see it here</p>
+            <button class="btn-primary" style="padding:12px 32px;font-size:0.85rem" onclick="showPage('create')">Plan Your First Event</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vendors Tab -->
+      <div id="tab-vendors" class="tab-content" style="display:none">
+        <h2 style="font-family:var(--font-heading);font-size:1.4rem;font-weight:500;color:var(--soft-black);margin-bottom:24px">Saved Vendors</h2>
+        <div id="vendors-list">
+          <div class="empty-state">
+            <h3>No Saved Vendors</h3>
+            <p>Search for vendors and save your favorites here</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Tab -->
+      <div id="tab-schedule" class="tab-content" style="display:none">
+        <h2 style="font-family:var(--font-heading);font-size:1.4rem;font-weight:500;color:var(--soft-black);margin-bottom:24px">Upcoming Appointments</h2>
+        <div id="appointments-list">
+          <div class="empty-state">
+            <h3>No Appointments</h3>
+            <p>Schedule vendor meetings and tastings to stay organized</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CREATE EVENT PAGE ==================== -->
+<div id="page-create" class="page">
+  <div class="page-header">
+    <div class="container">
+      <h1>Plan Your Event</h1>
+      <p>Tell us about your vision and we'll find the perfect vendors</p>
+    </div>
+  </div>
+  <div class="content-area">
+    <div class="container" style="max-width:740px">
+      <form id="create-event-form" onsubmit="handleCreateEvent(event)">
+        <div class="form-section">
+          <h2>Event Details</h2>
+          <div class="form-group">
+            <label>Event Name</label>
+            <input type="text" class="form-input" id="evt-name" placeholder="e.g., Sarah & James's Wedding" required>
+          </div>
+          <div class="form-group">
+            <label>Event Type</label>
+            <select class="form-input" id="evt-type">
+              <option value="Wedding">Wedding</option>
+              <option value="Corporate Event">Corporate Event</option>
+              <option value="Birthday Celebration">Birthday Celebration</option>
+              <option value="Anniversary">Anniversary</option>
+              <option value="Baby Shower">Baby Shower</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" class="form-input" id="evt-location" placeholder="City or venue address" required>
+            </div>
+            <div class="form-group">
+              <label>Event Date</label>
+              <input type="date" class="form-input" id="evt-date" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Expected Guests</label>
+              <input type="number" class="form-input" id="evt-guests" placeholder="150">
+            </div>
+            <div class="form-group">
+              <label>Budget Range</label>
+              <select class="form-input" id="evt-budget">
+                <option value="Under $5,000">Under $5,000</option>
+                <option value="$5,000 - $15,000">$5,000 - $15,000</option>
+                <option value="$15,000 - $50,000" selected>$15,000 - $50,000</option>
+                <option value="Over $50,000">Over $50,000</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Vendors Needed</h2>
+          <p style="color:var(--warm-gray);margin-bottom:20px;font-size:0.95rem">Select all that apply</p>
+          <div class="category-grid" id="category-grid">
+            <div class="cat-btn selected" data-cat="venue" onclick="this.classList.toggle('selected')"><span class="emoji">&#127963;</span><span class="label">Venue</span></div>
+            <div class="cat-btn selected" data-cat="catering" onclick="this.classList.toggle('selected')"><span class="emoji">&#127860;</span><span class="label">Catering</span></div>
+            <div class="cat-btn selected" data-cat="photography" onclick="this.classList.toggle('selected')"><span class="emoji">&#128248;</span><span class="label">Photography</span></div>
+            <div class="cat-btn" data-cat="videography" onclick="this.classList.toggle('selected')"><span class="emoji">&#127909;</span><span class="label">Videography</span></div>
+            <div class="cat-btn" data-cat="music" onclick="this.classList.toggle('selected')"><span class="emoji">&#127925;</span><span class="label">Music / DJ</span></div>
+            <div class="cat-btn" data-cat="florist" onclick="this.classList.toggle('selected')"><span class="emoji">&#128144;</span><span class="label">Florist</span></div>
+            <div class="cat-btn" data-cat="planner" onclick="this.classList.toggle('selected')"><span class="emoji">&#128203;</span><span class="label">Planner</span></div>
+            <div class="cat-btn" data-cat="transport" onclick="this.classList.toggle('selected')"><span class="emoji">&#128663;</span><span class="label">Transport</span></div>
+            <div class="cat-btn" data-cat="cake" onclick="this.classList.toggle('selected')"><span class="emoji">&#127874;</span><span class="label">Cake</span></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Search Preferences</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Maximum Distance</label>
+              <select class="form-input" id="evt-distance">
+                <option value="5 miles">Within 5 miles</option>
+                <option value="10 miles">Within 10 miles</option>
+                <option value="25 miles" selected>Within 25 miles</option>
+                <option value="50 miles">Within 50 miles</option>
+                <option value="No preference">No preference</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Minimum Rating</label>
+              <select class="form-input" id="evt-rating">
+                <option value="3.0">3.0+ stars</option>
+                <option value="3.5">3.5+ stars</option>
+                <option value="4.0" selected>4.0+ stars</option>
+                <option value="4.5">4.5+ stars</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Special Requirements</label>
+            <textarea class="form-input" rows="4" id="evt-requirements" placeholder="Any dietary needs, themes, accessibility requirements, or style preferences..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-outline" onclick="showPage('dashboard')">Cancel</button>
+          <button type="submit" class="btn-primary" id="create-event-btn">Find Vendors</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="logo">Event Planner <span>Pro</span></div>
+    <p>&copy; 2026 Event Planner Pro. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// =========================================================================
+// API Helper
+// =========================================================================
+const API = {
+  base: '',
+
+  getToken() {
+    return localStorage.getItem('epp_token');
+  },
+
+  setToken(token) {
+    localStorage.setItem('epp_token', token);
+  },
+
+  clearToken() {
+    localStorage.removeItem('epp_token');
+    localStorage.removeItem('epp_user');
+  },
+
+  getUser() {
+    try { return JSON.parse(localStorage.getItem('epp_user')); } catch { return null; }
+  },
+
+  setUser(user) {
+    localStorage.setItem('epp_user', JSON.stringify(user));
+  },
+
+  isLoggedIn() {
+    return !!this.getToken();
+  },
+
+  async request(method, path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    const token = this.getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    const opts = { method, headers };
+    if (body && method !== 'GET') opts.body = JSON.stringify(body);
+
+    const res = await fetch(this.base + path, opts);
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        this.clearToken();
+        updateNavAuth();
+      }
+      throw new Error(data.error || 'Request failed');
+    }
+    return data;
+  },
+
+  get(path)       { return this.request('GET', path); },
+  post(path, b)   { return this.request('POST', path, b); },
+  put(path, b)    { return this.request('PUT', path, b); },
+  del(path)       { return this.request('DELETE', path); },
+};
+
+// =========================================================================
+// Toast Notifications
+// =========================================================================
+let toastTimer = null;
+function showToast(message, type) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.className = 'toast ' + (type || '');
+  clearTimeout(toastTimer);
+  requestAnimationFrame(() => {
+    el.classList.add('visible');
+    toastTimer = setTimeout(() => el.classList.remove('visible'), 3500);
+  });
+}
+
+// =========================================================================
+// Navigation & Page Management
+// =========================================================================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  window.scrollTo(0, 0);
+
+  if (page === 'dashboard' && API.isLoggedIn()) {
+    loadDashboardData();
+  }
+}
+
+function requireAuth(page) {
+  if (API.isLoggedIn()) {
+    showPage(page);
+  } else {
+    window._authRedirect = page;
+    openAuthModal();
+  }
+}
+
+function switchTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  el.classList.add('active');
+  document.getElementById(tabId).style.display = 'block';
+}
+
+// =========================================================================
+// Auth Modal
+// =========================================================================
+let authMode = 'login';
+
+function openAuthModal() {
+  authMode = 'login';
+  renderAuthModal();
+  document.getElementById('auth-modal').classList.add('active');
+  document.getElementById('auth-email').focus();
+}
+
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.remove('active');
+  document.getElementById('auth-error').classList.remove('visible');
+  document.getElementById('auth-form').reset();
+}
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  renderAuthModal();
+}
+
+function renderAuthModal() {
+  const isLogin = authMode === 'login';
+  document.getElementById('auth-modal-title').textContent = isLogin ? 'Welcome Back' : 'Create Your Account';
+  document.getElementById('auth-modal-subtitle').textContent = isLogin
+    ? 'Sign in to manage your events and vendors'
+    : 'Start planning your dream event today';
+  document.getElementById('auth-name-group').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('auth-submit-btn').textContent = isLogin ? 'Sign In' : 'Create Account';
+  document.getElementById('auth-switch').innerHTML = isLogin
+    ? 'Don\'t have an account? <a onclick="toggleAuthMode()">Create one</a>'
+    : 'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>';
+  document.getElementById('auth-error').classList.remove('visible');
+  if (!isLogin) {
+    document.getElementById('auth-name').setAttribute('required', '');
+  } else {
+    document.getElementById('auth-name').removeAttribute('required');
+  }
+}
+
+async function handleAuth(e) {
+  e.preventDefault();
+  const btn = document.getElementById('auth-submit-btn');
+  const errEl = document.getElementById('auth-error');
+  errEl.classList.remove('visible');
+
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const name = document.getElementById('auth-name').value.trim();
+
+  btn.innerHTML = '<span class="spinner"></span>' + (authMode === 'login' ? 'Signing in...' : 'Creating account...');
+  btn.classList.add('btn-loading');
+
+  try {
+    const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/signup';
+    const body = authMode === 'login' ? { email, password } : { email, password, name };
+    const data = await API.post(endpoint, body);
+
+    API.setToken(data.token);
+    API.setUser(data.user);
+    updateNavAuth();
+    closeAuthModal();
+    showToast('Welcome' + (data.user.name ? ', ' + data.user.name : '') + '!', 'success');
+
+    if (window._authRedirect) {
+      showPage(window._authRedirect);
+      window._authRedirect = null;
+    } else {
+      showPage('dashboard');
+    }
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.add('visible');
+  } finally {
+    btn.textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
+    btn.classList.remove('btn-loading');
+  }
+}
+
+function updateNavAuth() {
+  const area = document.getElementById('nav-user-area');
+  if (API.isLoggedIn()) {
+    const user = API.getUser();
+    const firstName = user && user.name ? user.name.split(' ')[0] : 'You';
+    area.innerHTML =
+      '<span class="user-greeting">Hello, <strong>' + escapeHtml(firstName) + '</strong></span> ' +
+      '<a href="#" onclick="handleLogout()" class="btn-nav" style="margin-left:8px;font-size:0.78rem;padding:6px 14px">Sign Out</a>';
+  } else {
+    area.innerHTML = '<a href="#" onclick="openAuthModal()" class="btn-nav" id="nav-signin-btn">Sign In</a>';
+  }
+}
+
+function handleLogout() {
+  API.clearToken();
+  updateNavAuth();
+  showPage('home');
+  showToast('You have been signed out');
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// =========================================================================
+// Dashboard Data Loading
+// =========================================================================
+async function loadDashboardData() {
+  if (!API.isLoggedIn()) return;
+  loadEvents();
+  loadVendors();
+  loadAppointments();
+}
+
+async function loadEvents() {
+  const container = document.getElementById('events-list');
+  try {
+    const events = await API.get('/api/events');
+    if (events.length === 0) {
+      container.innerHTML =
+        '<div class="empty-state"><h3>No Events Yet</h3><p>Start planning your first event to see it here</p>' +
+        '<button class="btn-primary" style="padding:12px 32px;font-size:0.85rem" onclick="showPage(\'create\')">Plan Your First Event</button></div>';
+      return;
+    }
+    container.innerHTML = events.map(evt => {
+      const evtDate = evt.date ? new Date(evt.date).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : '';
+      const progress = evt.progress || 0;
+      const typeClass = evt.type === 'Wedding' ? 'tag-blush' : 'tag-sage';
+      return '<div class="event-card" onclick="viewEvent(' + evt.id + ')">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">' +
+          '<h3>' + escapeHtml(evt.name) + '</h3>' +
+          '<span class="tag ' + typeClass + '">' + escapeHtml(evt.type) + '</span></div>' +
+        '<div class="event-meta">' +
+          '<span>&#128197; ' + evtDate + '</span>' +
+          '<span>&#128205; ' + escapeHtml(evt.location) + '</span>' +
+          (evt.guests ? '<span>&#128101; ' + evt.guests + ' guests</span>' : '') + '</div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px">' +
+          '<span style="color:var(--warm-gray)">Planning Progress</span>' +
+          '<span style="color:var(--dusty-rose);font-weight:600">' + progress + '%</span></div>' +
+        '<div class="progress-bar"><div class="progress-fill" style="width:' + progress + '%"></div></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:0.88rem;color:var(--warm-gray)">' +
+          '<span>' + escapeHtml(evt.budget || '') + '</span>' +
+          '<a href="#" style="color:var(--dusty-rose);font-weight:600" onclick="event.stopPropagation();deleteEvent(' + evt.id + ')">Delete</a></div></div>';
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><h3>Could not load events</h3><p>' + escapeHtml(err.message) + '</p></div>';
+  }
+}
+
+async function loadVendors() {
+  const container = document.getElementById('vendors-list');
+  try {
+    const vendors = await API.get('/api/vendors/saved');
+    if (vendors.length === 0) {
+      container.innerHTML = '<div class="empty-state"><h3>No Saved Vendors</h3><p>Search for vendors and save your favorites here</p></div>';
+      return;
+    }
+    container.innerHTML = vendors.map(v => {
+      const stars = v.rating ? '&#9733;'.repeat(Math.round(v.rating)) + (v.rating < 5 ? '&#9734;'.repeat(5 - Math.round(v.rating)) : '') : '';
+      return '<div class="vendor-card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap"><div>' +
+          '<h4>' + escapeHtml(v.vendor_name) + '</h4>' +
+          '<div class="vendor-info">' +
+            '<span class="tag tag-blush" style="font-size:0.7rem">' + escapeHtml(v.category) + '</span>' +
+            (v.location ? '<span>&#128205; ' + escapeHtml(v.location) + '</span>' : '') +
+            '<span class="stars">' + stars + '</span>' +
+            (v.rating ? '<span>' + v.rating + ' (' + (v.reviews || 0) + ' reviews)</span>' : '') +
+          '</div></div>' +
+          '<span style="font-weight:600;color:var(--charcoal)">' + escapeHtml(v.price_range || '') + '</span></div>' +
+        (v.notes ? '<div class="note-box"><strong>Note:</strong> ' + escapeHtml(v.notes) + '</div>' : '') +
+        '<div class="vendor-actions">' +
+          '<button class="btn-sm" onclick="promptVendorNote(' + v.id + ')">&#128221; Add Note</button>' +
+          '<button class="btn-sm" onclick="deleteVendor(' + v.id + ')">Remove</button>' +
+        '</div></div>';
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><h3>Could not load vendors</h3><p>' + escapeHtml(err.message) + '</p></div>';
+  }
+}
+
+async function loadAppointments() {
+  const container = document.getElementById('appointments-list');
+  try {
+    const apts = await API.get('/api/appointments');
+    if (apts.length === 0) {
+      container.innerHTML = '<div class="empty-state"><h3>No Appointments</h3><p>Schedule vendor meetings and tastings to stay organized</p></div>';
+      return;
+    }
+    container.innerHTML = apts.map(a => {
+      const aptDate = a.date ? new Date(a.date).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : '';
+      const aptTime = a.time ? a.time.substring(0, 5) : '';
+      const statusClass = a.status === 'confirmed' ? 'status-confirmed' : 'status-pending';
+      return '<div class="apt-card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px"><div>' +
+          '<h4>' + escapeHtml(a.vendor_name || 'Appointment') + '</h4>' +
+          '<div class="apt-type">' + escapeHtml(a.type) + '</div></div>' +
+          '<span class="status-badge ' + statusClass + '">' + escapeHtml(a.status) + '</span></div>' +
+        '<div class="apt-details">' +
+          '<span>&#128197; ' + aptDate + '</span>' +
+          '<span>&#128336; ' + aptTime + '</span></div>' +
+        (a.notes ? '<div class="note-box"><strong>Notes:</strong> ' + escapeHtml(a.notes) + '</div>' : '') +
+        '<div class="vendor-actions">' +
+          (a.status === 'pending' ? '<button class="btn-sm" onclick="updateAppointmentStatus(' + a.id + ',\'confirmed\')">Confirm</button>' : '') +
+          '<button class="btn-sm btn-sm-fill" onclick="updateAppointmentStatus(' + a.id + ',\'completed\')">&#10003; Complete</button>' +
+          '<button class="btn-sm" onclick="deleteAppointment(' + a.id + ')">Cancel</button>' +
+        '</div></div>';
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><h3>Could not load appointments</h3><p>' + escapeHtml(err.message) + '</p></div>';
+  }
+}
+
+// =========================================================================
+// Event CRUD
+// =========================================================================
+async function handleCreateEvent(e) {
+  e.preventDefault();
+  if (!API.isLoggedIn()) { openAuthModal(); return; }
+
+  const btn = document.getElementById('create-event-btn');
+  btn.innerHTML = '<span class="spinner"></span>Finding Vendors...';
+  btn.classList.add('btn-loading');
+
+  const selectedCats = [];
+  document.querySelectorAll('#category-grid .cat-btn.selected').forEach(el => {
+    selectedCats.push(el.dataset.cat);
+  });
+
+  const payload = {
+    eventName: document.getElementById('evt-name').value.trim(),
+    eventType: document.getElementById('evt-type').value,
+    location: document.getElementById('evt-location').value.trim(),
+    date: document.getElementById('evt-date').value,
+    guests: parseInt(document.getElementById('evt-guests').value) || 0,
+    budget: document.getElementById('evt-budget').value,
+    categories: selectedCats,
+    maxDistance: document.getElementById('evt-distance').value,
+    minRating: document.getElementById('evt-rating').value,
+    requirements: document.getElementById('evt-requirements').value.trim(),
+  };
+
+  try {
+    await API.post('/api/events', payload);
+    showToast('Event created successfully!', 'success');
+    document.getElementById('create-event-form').reset();
+    showPage('dashboard');
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.textContent = 'Find Vendors';
+    btn.classList.remove('btn-loading');
+  }
+}
+
+function viewEvent(id) {
+  showToast('Event details view coming soon');
+}
+
+async function deleteEvent(id) {
+  if (!confirm('Are you sure you want to delete this event?')) return;
+  try {
+    await API.del('/api/events/' + id);
+    showToast('Event deleted', 'success');
+    loadEvents();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// =========================================================================
+// Vendor Actions
+// =========================================================================
+async function promptVendorNote(id) {
+  const note = prompt('Enter a note for this vendor:');
+  if (note === null) return;
+  try {
+    await API.put('/api/vendors/' + id + '/notes', { notes: note });
+    showToast('Note saved', 'success');
+    loadVendors();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function deleteVendor(id) {
+  if (!confirm('Remove this vendor from your saved list?')) return;
+  try {
+    await API.del('/api/vendors/' + id);
+    showToast('Vendor removed', 'success');
+    loadVendors();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// =========================================================================
+// Appointment Actions
+// =========================================================================
+async function updateAppointmentStatus(id, status) {
+  try {
+    await API.put('/api/appointments/' + id + '/status', { status });
+    showToast('Appointment updated', 'success');
+    loadAppointments();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function deleteAppointment(id) {
+  if (!confirm('Cancel this appointment?')) return;
+  try {
+    await API.del('/api/appointments/' + id);
+    showToast('Appointment cancelled', 'success');
+    loadAppointments();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// =========================================================================
+// Stripe Upgrade
+// =========================================================================
+async function handleUpgrade(plan) {
+  if (!API.isLoggedIn()) {
+    window._authRedirect = 'home';
+    openAuthModal();
+    return;
+  }
+  try {
+    const data = await API.post('/api/stripe/create-checkout-session', { plan });
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      showToast('Stripe is not configured yet. Set your Stripe keys to enable payments.', 'error');
+    }
+  } catch (err) {
+    showToast(err.message || 'Could not start checkout', 'error');
+  }
+}
+
+// =========================================================================
+// Init
+// =========================================================================
+(function init() {
+  updateNavAuth();
+
+  // Check for payment redirect
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    showToast('Payment successful! Your account has been upgraded.', 'success');
+    history.replaceState(null, '', '/');
+  } else if (params.get('payment') === 'cancelled') {
+    showToast('Payment was cancelled', 'error');
+    history.replaceState(null, '', '/');
+  }
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(function() {});
+  }
+})();
+</script>
+</body>
+</html>
