@@ -218,7 +218,10 @@ footer .logo span{color:var(--dusty-rose)}
   .steps{grid-template-columns:repeat(2,1fr)}
   .pricing-grid{grid-template-columns:1fr}
   .form-row{grid-template-columns:1fr}
-  .category-grid{grid-template-columns:repeat(3,1fr)}
+  .category-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .cat-btn{padding:12px 8px;font-size:0.85rem}
+  .cat-btn .emoji{font-size:1.2rem}
+  .cat-btn .label{font-size:0.75rem}
   .hero-buttons{flex-direction:column;align-items:center}
   .event-meta{flex-direction:column;gap:6px}
   .modal{padding:32px 24px;margin:16px}
@@ -969,20 +972,25 @@ async function handleCreateEvent(e) {
     const vendors = await API.post('/api/vendors/search', vendorPayload);
 
     // Save vendors to the event
+    const eventId = eventData.event ? eventData.event.id : eventData.id;
     if (vendors && vendors.length > 0) {
       for (const vendor of vendors.slice(0, 10)) {
-        await API.post('/api/vendors', {
-          eventId: eventData.event.id,
-          vendorName: vendor.name,
-          category: vendor.category,
-          location: vendor.location,
-          rating: vendor.rating,
-          reviews: vendor.reviews,
-          priceRange: vendor.priceRange,
-          contact: vendor.contact || '',
-          website: vendor.website || '',
-          placeId: vendor.placeId || ''
-        });
+        try {
+          await API.post('/api/vendors', {
+            eventId: eventId,
+            vendorName: vendor.name,
+            category: vendor.category,
+            location: vendor.location,
+            rating: vendor.rating,
+            reviews: vendor.reviews,
+            priceRange: vendor.priceRange,
+            contact: vendor.contact || '',
+            website: vendor.website || '',
+            placeId: vendor.placeId || ''
+          });
+        } catch (vendorErr) {
+          console.error('Error saving vendor:', vendorErr);
+        }
       }
       showToast(`Event created! Found ${vendors.length} vendors`, 'success');
     } else {
