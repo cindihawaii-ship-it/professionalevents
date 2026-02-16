@@ -1,4 +1,4 @@
-const express = require('express');
+ const express = require('express');
 const path = require('path');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
@@ -214,6 +214,19 @@ async function initializeDatabase() {
       );
     `);
     console.log('Database tables initialized successfully');
+
+    // Add missing columns to existing tables (migration)
+    try {
+      await pool.query(`
+        ALTER TABLE saved_vendors
+        ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending',
+        ADD COLUMN IF NOT EXISTS budgeted_amount DECIMAL(10,2) DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS actual_amount DECIMAL(10,2) DEFAULT 0;
+      `);
+      console.log('Database migrations completed');
+    } catch (migrationError) {
+      console.log('Migration note:', migrationError.message);
+    }
   } catch (err) {
     console.warn('Database initialization skipped (tables may already exist):', err.message);
   }
