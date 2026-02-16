@@ -180,6 +180,8 @@ async function initializeDatabase() {
         status VARCHAR(50) DEFAULT 'pending',
         contacted BOOLEAN DEFAULT false,
         booked BOOLEAN DEFAULT false,
+        budgeted_amount DECIMAL(10,2) DEFAULT 0,
+        actual_amount DECIMAL(10,2) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -460,7 +462,7 @@ app.get('/api/vendors/saved', authenticateToken, async (req, res) => {
 
 app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
   try {
-    const { notes, contact, status } = req.body;
+    const { notes, contact, status, budgetedAmount, actualAmount } = req.body;
     const updates = [];
     const values = [];
     let paramCount = 1;
@@ -482,6 +484,14 @@ app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
       } else if (status === 'booked') {
         updates.push(`booked = true, contacted = true`);
       }
+    }
+    if (budgetedAmount !== undefined) {
+      updates.push(`budgeted_amount = $${paramCount++}`);
+      values.push(budgetedAmount);
+    }
+    if (actualAmount !== undefined) {
+      updates.push(`actual_amount = $${paramCount++}`);
+      values.push(actualAmount);
     }
 
     if (updates.length === 0) {
@@ -554,7 +564,7 @@ app.post('/api/vendors/search', authenticateToken, async (req, res) => {
         const data = await response.json();
 
         if (data.results) {
-          for (const place of data.results.slice(0, 5)) {
+          for (const place of data.results.slice(0, 4)) {
             if (minRating && place.rating < parseFloat(minRating)) continue;
 
             let priceRange = '$';
@@ -628,39 +638,55 @@ function generateSampleVendors(location, categories, minRating) {
       { name: 'Golden Gate Club', rating: 5.0, reviews: 248, priceRange: '$$$' },
       { name: 'The Conservatory', rating: 4.8, reviews: 182, priceRange: '$$$$' },
       { name: 'Bayview Estate', rating: 4.7, reviews: 135, priceRange: '$$$' },
+      { name: 'Sunset Pavilion', rating: 4.6, reviews: 92, priceRange: '$$' },
     ],
     catering: [
       { name: 'On The Roll Catering', rating: 4.9, reviews: 312, priceRange: '$$' },
       { name: 'Farm & Table Co.', rating: 4.8, reviews: 198, priceRange: '$$$' },
-      { name: 'Savory Events', rating: 4.6, reviews: 167, priceRange: '$$' },
+      { name: 'Savory Events', rating: 4.7, reviews: 167, priceRange: '$$' },
+      { name: 'Coastal Cuisine Catering', rating: 4.6, reviews: 143, priceRange: '$$$' },
     ],
     photography: [
       { name: 'Avery Wong Photography', rating: 5.0, reviews: 156, priceRange: '$$$' },
       { name: 'Light & Bloom Studio', rating: 4.9, reviews: 203, priceRange: '$$' },
-      { name: 'Captured Moments', rating: 4.7, reviews: 124, priceRange: '$$' },
+      { name: 'Captured Moments', rating: 4.8, reviews: 124, priceRange: '$$' },
+      { name: 'Lens & Love Photography', rating: 4.7, reviews: 98, priceRange: '$$$' },
     ],
     videography: [
       { name: 'Cinematic Stories', rating: 4.9, reviews: 98, priceRange: '$$$' },
       { name: 'Frame by Frame Films', rating: 4.8, reviews: 87, priceRange: '$$' },
+      { name: 'Motion & Emotion Videos', rating: 4.7, reviews: 76, priceRange: '$$' },
+      { name: 'Reel Moments Production', rating: 4.6, reviews: 65, priceRange: '$$$' },
     ],
     music: [
-      { name: 'Harmony Live Band', rating: 4.8, reviews: 145, priceRange: '$$' },
+      { name: 'Harmony Live Band', rating: 4.9, reviews: 145, priceRange: '$$' },
       { name: 'DJ Elara', rating: 4.9, reviews: 234, priceRange: '$$' },
+      { name: 'Rhythm & Soul Entertainment', rating: 4.8, reviews: 187, priceRange: '$$$' },
+      { name: 'The Sound Wave DJs', rating: 4.7, reviews: 156, priceRange: '$$' },
     ],
     florist: [
       { name: 'Petal & Stem', rating: 5.0, reviews: 178, priceRange: '$$' },
-      { name: 'Garden of Eve Florals', rating: 4.8, reviews: 142, priceRange: '$$$' },
+      { name: 'Garden of Eve Florals', rating: 4.9, reviews: 142, priceRange: '$$$' },
+      { name: 'Bloom & Blossom', rating: 4.8, reviews: 134, priceRange: '$$' },
+      { name: 'Rose & Lily Designs', rating: 4.7, reviews: 112, priceRange: '$$$' },
     ],
     planner: [
       { name: 'Grace & Gather Events', rating: 5.0, reviews: 92, priceRange: '$$$' },
       { name: 'Elegant Affairs Co.', rating: 4.9, reviews: 116, priceRange: '$$$$' },
+      { name: 'Dream Day Planners', rating: 4.8, reviews: 87, priceRange: '$$$' },
+      { name: 'Perfect Moments Planning', rating: 4.7, reviews: 73, priceRange: '$$' },
     ],
     transport: [
-      { name: 'Premier Limousine', rating: 4.7, reviews: 201, priceRange: '$$' },
+      { name: 'Premier Limousine', rating: 4.8, reviews: 201, priceRange: '$$' },
+      { name: 'Luxury Ride Services', rating: 4.7, reviews: 156, priceRange: '$$$' },
+      { name: 'Classic Car Rentals', rating: 4.7, reviews: 134, priceRange: '$$' },
+      { name: 'Elite Transportation', rating: 4.6, reviews: 98, priceRange: '$$$' },
     ],
     cake: [
       { name: 'Sweet Layers Bakery', rating: 5.0, reviews: 267, priceRange: '$$' },
-      { name: 'Flour & Fondant', rating: 4.8, reviews: 189, priceRange: '$$$' },
+      { name: 'Flour & Fondant', rating: 4.9, reviews: 189, priceRange: '$$$' },
+      { name: 'Sugar & Spice Cakes', rating: 4.8, reviews: 176, priceRange: '$$' },
+      { name: 'Divine Desserts Studio', rating: 4.7, reviews: 143, priceRange: '$$$' },
     ],
   };
 
