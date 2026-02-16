@@ -999,6 +999,7 @@ async function handleCreateEvent(e) {
 
     document.getElementById('create-event-form').reset();
     showPage('dashboard');
+    loadVendors(); // Load the vendors we just saved
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
