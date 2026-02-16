@@ -116,7 +116,7 @@ self.addEventListener('fetch', e => {
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://localhost/eventplanner',
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('amazonaws')
+  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('postgresql://)
     ? { rejectUnauthorized: false }
     : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
 });
