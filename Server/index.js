@@ -1,4 +1,4 @@
-const express = require('express');
+ const express = require('express');
 const path = require('path');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
@@ -115,10 +115,16 @@ self.addEventListener('fetch', e => {
 // ---------------------------------------------------------------------------
 
 // Database connection - Railway compatible
-const pool = new Pool({
+const dbConfig = {
   connectionString: process.env.DATABASE_URL || 'postgresql://localhost/eventplanner',
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
-});
+};
+
+// Only add SSL if DATABASE_URL exists and is external (not localhost)
+if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost')) {
+  dbConfig.ssl = { rejectUnauthorized: false };
+}
+
+const pool = new Pool(dbConfig);
 
 // Auto-create tables on startup
 async function initializeDatabase() {
@@ -233,8 +239,15 @@ app.get('/api/health', async (_req, res) => {
   try {
     await pool.query('SELECT 1');
     res.json({ status: 'healthy', timestamp: new Date().toISOString(), database: 'connected' });
-  } catch {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString(), database: 'disconnected' });
+  } catch (err) {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: err.message,
+      hasDbUrl: !!process.env.DATABASE_URL,
+      dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 15) : 'none'
+    });
   }
 });
 
