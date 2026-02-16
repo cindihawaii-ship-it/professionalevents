@@ -7,7 +7,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+// Load dotenv only in development (Railway provides env vars directly)
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+}
 
 const app = express();
 
