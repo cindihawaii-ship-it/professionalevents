@@ -1,4 +1,4 @@
- const express = require('express');
+const express = require('express');
 const path = require('path');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
@@ -174,6 +174,7 @@ async function initializeDatabase() {
         reviews INTEGER,
         price_range VARCHAR(50),
         contact VARCHAR(255),
+        phone VARCHAR(50),
         website VARCHAR(255),
         notes TEXT,
         place_id VARCHAR(255),
@@ -182,6 +183,7 @@ async function initializeDatabase() {
         booked BOOLEAN DEFAULT false,
         budgeted_amount DECIMAL(10,2) DEFAULT 0,
         actual_amount DECIMAL(10,2) DEFAULT 0,
+        is_favorite BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -194,6 +196,8 @@ async function initializeDatabase() {
         type VARCHAR(100) NOT NULL,
         date DATE NOT NULL,
         time TIME NOT NULL,
+        location VARCHAR(255),
+        contact_name VARCHAR(255),
         notes TEXT,
         status VARCHAR(50) DEFAULT 'pending',
         reminder_sent BOOLEAN DEFAULT false,
@@ -221,7 +225,9 @@ async function initializeDatabase() {
         ALTER TABLE saved_vendors
         ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending',
         ADD COLUMN IF NOT EXISTS budgeted_amount DECIMAL(10,2) DEFAULT 0,
-        ADD COLUMN IF NOT EXISTS actual_amount DECIMAL(10,2) DEFAULT 0;
+        ADD COLUMN IF NOT EXISTS actual_amount DECIMAL(10,2) DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS phone VARCHAR(50),
+        ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN DEFAULT false;
       `);
       console.log('Database migrations completed');
     } catch (migrationError) {
@@ -475,7 +481,7 @@ app.get('/api/vendors/saved', authenticateToken, async (req, res) => {
 
 app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
   try {
-    const { notes, contact, status, budgetedAmount, actualAmount } = req.body;
+    const { notes, contact, phone, status, budgetedAmount, actualAmount, isFavorite } = req.body;
     const updates = [];
     const values = [];
     let paramCount = 1;
@@ -487,6 +493,10 @@ app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
     if (contact !== undefined) {
       updates.push(`contact = $${paramCount++}`);
       values.push(contact);
+    }
+    if (phone !== undefined) {
+      updates.push(`phone = $${paramCount++}`);
+      values.push(phone);
     }
     if (status !== undefined) {
       updates.push(`status = $${paramCount++}`);
@@ -505,6 +515,10 @@ app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
     if (actualAmount !== undefined) {
       updates.push(`actual_amount = $${paramCount++}`);
       values.push(actualAmount);
+    }
+    if (isFavorite !== undefined) {
+      updates.push(`is_favorite = $${paramCount++}`);
+      values.push(isFavorite);
     }
 
     if (updates.length === 0) {
@@ -719,15 +733,15 @@ function generateSampleVendors(location, categories, minRating) {
 
 app.post('/api/appointments', authenticateToken, async (req, res) => {
   try {
-    const { vendorId, eventId, type, date, time, notes } = req.body;
+    const { vendorId, eventId, type, date, time, location, contactName, notes } = req.body;
     if (!type || !date || !time) {
       return res.status(400).json({ error: 'Type, date, and time are required' });
     }
 
     const result = await pool.query(
-      `INSERT INTO appointments (user_id, vendor_id, event_id, type, date, time, notes, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending') RETURNING *`,
-      [req.user.userId, vendorId || null, eventId || null, type, date, time, notes || '']
+      `INSERT INTO appointments (user_id, vendor_id, event_id, type, date, time, location, contact_name, notes, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending') RETURNING *`,
+      [req.user.userId, vendorId || null, eventId || null, type, date, time, location || '', contactName || '', notes || '']
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
