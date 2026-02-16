@@ -948,12 +948,26 @@ async function loadVendors() {
 async function loadEventVendors(eventId) {
   const container = document.getElementById('event-vendors-list');
   try {
-    const vendors = await API.get('/api/vendors/saved?eventId=' + eventId);
+    let vendors = await API.get('/api/vendors/saved?eventId=' + eventId);
     if (vendors.length === 0) {
       container.innerHTML = '<div class="empty-state"><h3>No Vendors Yet</h3><p>Vendors saved for this event will appear here</p></div>';
       return;
     }
-    container.innerHTML = vendors.map(v => {
+
+    // Sort vendors: booked first, then appointment_set, then contacted, then pending
+    const statusOrder = { booked: 1, appointment_set: 2, contacted: 3, pending: 4, declined: 5 };
+    vendors.sort((a, b) => {
+      const aOrder = statusOrder[a.status] || 4;
+      const bOrder = statusOrder[b.status] || 4;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      // Within same status, sort by rating
+      return (b.rating || 0) - (a.rating || 0);
+    });
+
+    let totalBudgeted = 0;
+    let totalActual = 0;
+
+    const vendorHtml = vendors.map(v => {
       const stars = v.rating ? '&#9733;'.repeat(Math.round(v.rating)) + (v.rating < 5 ? '&#9734;'.repeat(5 - Math.round(v.rating)) : '') : '';
       const status = v.status || 'pending';
       const statusColors = {
@@ -964,6 +978,10 @@ async function loadEventVendors(eventId) {
         declined: 'background:#ffebee;color:#d32f2f'
       };
       const statusStyle = statusColors[status] || statusColors.pending;
+      const budgeted = parseFloat(v.budgeted_amount) || 0;
+      const actual = parseFloat(v.actual_amount) || 0;
+      totalBudgeted += budgeted;
+      totalActual += actual;
 
       return '<div class="vendor-card">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap"><div>' +
@@ -979,6 +997,12 @@ async function loadEventVendors(eventId) {
             '<span style="padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;' + statusStyle + '">' + status.replace('_', ' ').toUpperCase() + '</span>' +
           '</div></div>' +
         (v.contact ? '<div style="margin:8px 0;font-size:0.9rem"><strong>Contact:</strong> ' + escapeHtml(v.contact) + '</div>' : '') +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;padding:12px;background:#f9f9f9;border-radius:8px">' +
+          '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Budgeted</label>' +
+          '<input type="number" value="' + budgeted + '" onchange="updateVendorBudget(' + v.id + ',this.value,null)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
+          '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Actual Cost</label>' +
+          '<input type="number" value="' + actual + '" onchange="updateVendorBudget(' + v.id + ',null,this.value)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
+        '</div>' +
         (v.notes ? '<div class="note-box"><strong>Note:</strong> ' + escapeHtml(v.notes) + '</div>' : '') +
         '<div class="vendor-actions">' +
           '<button class="btn-sm btn-sm-fill" onclick="updateVendorStatus(' + v.id + ',\'booked\')">✓ Booked</button>' +
@@ -989,6 +1013,23 @@ async function loadEventVendors(eventId) {
           '<button class="btn-sm" onclick="deleteVendor(' + v.id + ')">Remove</button>' +
         '</div></div>';
     }).join('');
+
+    const difference = totalActual - totalBudgeted;
+    const diffColor = difference > 0 ? '#d32f2f' : '#388e3c';
+    const diffText = difference > 0 ? 'Over Budget' : difference < 0 ? 'Under Budget' : 'On Budget';
+
+    container.innerHTML =
+      '<div style="background:linear-gradient(135deg,#f5f1ed 0%,#e8dfd6 100%);padding:20px;border-radius:12px;margin-bottom:24px">' +
+        '<h3 style="margin:0 0 16px 0;font-size:1.1rem">Budget Summary</h3>' +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">' +
+          '<div style="text-align:center"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Total Budgeted</div>' +
+          '<div style="font-size:1.5rem;font-weight:600;color:var(--charcoal)">$' + totalBudgeted.toFixed(2) + '</div></div>' +
+          '<div style="text-align:center"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Total Actual</div>' +
+          '<div style="font-size:1.5rem;font-weight:600;color:var(--charcoal)">$' + totalActual.toFixed(2) + '</div></div>' +
+          '<div style="text-align:center"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Difference</div>' +
+          '<div style="font-size:1.5rem;font-weight:600;color:' + diffColor + '">' + (difference > 0 ? '+' : '') + '$' + difference.toFixed(2) + '</div>' +
+          '<div style="font-size:0.75rem;font-weight:600;color:' + diffColor + '">' + diffText + '</div></div>' +
+        '</div></div>' + vendorHtml;
   } catch (err) {
     container.innerHTML = '<div class="empty-state"><h3>Could not load vendors</h3><p>' + escapeHtml(err.message) + '</p></div>';
   }
@@ -1097,7 +1138,7 @@ async function handleCreateEvent(e) {
     // Save vendors to the event
     const eventId = eventData.event ? eventData.event.id : eventData.id;
     if (vendors && vendors.length > 0) {
-      for (const vendor of vendors.slice(0, 10)) {
+      for (const vendor of vendors) {
         try {
           await API.post('/api/vendors/save', {
             eventId: eventId,
@@ -1192,6 +1233,22 @@ async function deleteEvent(id) {
 // =========================================================================
 // Vendor Actions
 // =========================================================================
+async function updateVendorBudget(id, budgeted, actual) {
+  try {
+    const payload = {};
+    if (budgeted !== null) payload.budgetedAmount = parseFloat(budgeted) || 0;
+    if (actual !== null) payload.actualAmount = parseFloat(actual) || 0;
+
+    await API.put('/api/vendors/' + id + '/notes', payload);
+    showToast('Budget updated', 'success');
+    if (currentEventId) {
+      loadEventVendors(currentEventId);
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
 async function updateVendorStatus(id, status) {
   try {
     await API.put('/api/vendors/' + id + '/notes', { status: status });
