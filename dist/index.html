@@ -446,7 +446,6 @@ footer .logo span{color:var(--dusty-rose)}
   </div>
   <div class="tabs container">
     <button class="tab active" onclick="switchTab(this,'tab-events')">My Events</button>
-    <button class="tab" onclick="switchTab(this,'tab-vendors')">Saved Vendors</button>
     <button class="tab" onclick="switchTab(this,'tab-schedule')">Schedule</button>
   </div>
   <div class="content-area">
@@ -1198,6 +1197,7 @@ async function handleCreateEvent(e) {
               reviews: vendor.reviews,
               priceRange: vendor.priceRange,
               contact: vendor.contact || '',
+              phone: vendor.phone || '',
               website: vendor.website || '',
               placeId: vendor.placeId || ''
             }
@@ -1300,12 +1300,8 @@ async function updateVendorBudget(id, budgeted, actual) {
 async function updateVendorStatus(id, status) {
   try {
     await API.put('/api/vendors/' + id + '/notes', { status: status });
-    showToast('Status updated to ' + status.replace('_', ' '), 'success');
-    if (currentEventId) {
-      loadEventVendors(currentEventId);
-    } else {
-      loadVendors();
-    }
+    showToast('Status updated - refresh event to see in Booked section', 'success');
+    // Don't reload - let user manually refresh to avoid confusing jumps
   } catch (err) {
     showToast(err.message, 'error');
   }
