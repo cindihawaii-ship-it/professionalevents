@@ -967,9 +967,13 @@ async function loadEventVendors(eventId) {
       return (b.rating || 0) - (a.rating || 0);
     });
 
-    // Group by category
+    // Separate booked vendors
+    const bookedVendors = vendors.filter(v => v.status === 'booked');
+    const otherVendors = vendors.filter(v => v.status !== 'booked');
+
+    // Group other vendors by category
     const vendorsByCategory = {};
-    vendors.forEach(v => {
+    otherVendors.forEach(v => {
       if (!vendorsByCategory[v.category]) {
         vendorsByCategory[v.category] = [];
       }
@@ -983,10 +987,22 @@ async function loadEventVendors(eventId) {
     let vendorHtml = '';
     const categoryNames = { venue: 'Venues', catering: 'Catering', photography: 'Photography', videography: 'Videography', music: 'Music & DJ', florist: 'Florists', planner: 'Planners', transport: 'Transportation', cake: 'Cakes & Desserts' };
 
+    // Show booked vendors first
+    if (bookedVendors.length > 0) {
+      vendorHtml += '<div style="margin-bottom:32px"><h3 style="font-size:1.2rem;color:#388e3c;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #388e3c">✓ Booked Vendors</h3>';
+      vendorHtml += renderVendorCards(bookedVendors);
+      vendorHtml += '</div>';
+    }
+
+    // Then show other categories
     for (const [category, catVendors] of Object.entries(vendorsByCategory)) {
       vendorHtml += '<div style="margin-bottom:32px"><h3 style="font-size:1.2rem;color:var(--charcoal);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--dusty-rose)">' + (categoryNames[category] || category.toUpperCase()) + '</h3>';
+      vendorHtml += renderVendorCards(catVendors);
+      vendorHtml += '</div>';
+    }
 
-      vendorHtml += catVendors.map(v => {
+    function renderVendorCards(vendorList) {
+      return vendorList.map(v => {
         const stars = v.rating ? '&#9733;'.repeat(Math.round(v.rating)) + (v.rating < 5 ? '&#9734;'.repeat(5 - Math.round(v.rating)) : '') : '';
         const status = v.status || 'pending';
         const statusColors = { pending: 'background:#f0f0f0;color:#666', contacted: 'background:#e3f2fd;color:#1976d2', appointment_set: 'background:#fff3e0;color:#f57c00', booked: 'background:#e8f5e9;color:#388e3c', declined: 'background:#ffebee;color:#d32f2f' };
@@ -1038,8 +1054,6 @@ async function loadEventVendors(eventId) {
             '<button class="btn-sm" onclick="deleteVendor(' + v.id + ')">Remove</button>' +
           '</div></div>';
       }).join('');
-
-      vendorHtml += '</div>';
     }
 
     const difference = totalActual - totalBudgeted;
