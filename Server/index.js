@@ -114,11 +114,10 @@ self.addEventListener('fetch', e => {
 // Database
 // ---------------------------------------------------------------------------
 
+// Database connection - Railway compatible
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://localhost/eventplanner',
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('postgresql://')
-    ? { rejectUnauthorized: false }
-    : false,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
 });
 
 // Auto-create tables on startup
