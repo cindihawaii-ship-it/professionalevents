@@ -954,65 +954,93 @@ async function loadEventVendors(eventId) {
       return;
     }
 
-    // Sort vendors: booked first, then appointment_set, then contacted, then pending
-    const statusOrder = { booked: 1, appointment_set: 2, contacted: 3, pending: 4, declined: 5 };
+    // Sort vendors: favorites first, then by status, then by rating
     vendors.sort((a, b) => {
+      if (a.is_favorite && !b.is_favorite) return -1;
+      if (!a.is_favorite && b.is_favorite) return 1;
+
+      const statusOrder = { booked: 1, appointment_set: 2, contacted: 3, pending: 4, declined: 5 };
       const aOrder = statusOrder[a.status] || 4;
       const bOrder = statusOrder[b.status] || 4;
       if (aOrder !== bOrder) return aOrder - bOrder;
-      // Within same status, sort by rating
+
       return (b.rating || 0) - (a.rating || 0);
+    });
+
+    // Group by category
+    const vendorsByCategory = {};
+    vendors.forEach(v => {
+      if (!vendorsByCategory[v.category]) {
+        vendorsByCategory[v.category] = [];
+      }
+      vendorsByCategory[v.category].push(v);
     });
 
     let totalBudgeted = 0;
     let totalActual = 0;
 
-    const vendorHtml = vendors.map(v => {
-      const stars = v.rating ? '&#9733;'.repeat(Math.round(v.rating)) + (v.rating < 5 ? '&#9734;'.repeat(5 - Math.round(v.rating)) : '') : '';
-      const status = v.status || 'pending';
-      const statusColors = {
-        pending: 'background:#f0f0f0;color:#666',
-        contacted: 'background:#e3f2fd;color:#1976d2',
-        appointment_set: 'background:#fff3e0;color:#f57c00',
-        booked: 'background:#e8f5e9;color:#388e3c',
-        declined: 'background:#ffebee;color:#d32f2f'
-      };
-      const statusStyle = statusColors[status] || statusColors.pending;
-      const budgeted = parseFloat(v.budgeted_amount) || 0;
-      const actual = parseFloat(v.actual_amount) || 0;
-      totalBudgeted += budgeted;
-      totalActual += actual;
+    // Build vendor cards grouped by category
+    let vendorHtml = '';
+    const categoryNames = { venue: 'Venues', catering: 'Catering', photography: 'Photography', videography: 'Videography', music: 'Music & DJ', florist: 'Florists', planner: 'Planners', transport: 'Transportation', cake: 'Cakes & Desserts' };
 
-      return '<div class="vendor-card">' +
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap"><div>' +
-          '<h4>' + escapeHtml(v.vendor_name) + '</h4>' +
-          '<div class="vendor-info">' +
-            '<span class="tag tag-blush" style="font-size:0.7rem">' + escapeHtml(v.category) + '</span>' +
-            (v.location ? '<span>&#128205; ' + escapeHtml(v.location) + '</span>' : '') +
-            '<span class="stars">' + stars + '</span>' +
-            (v.rating ? '<span>' + v.rating + ' (' + (v.reviews || 0) + ' reviews)</span>' : '') +
-          '</div></div>' +
-          '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">' +
-            '<span style="font-weight:600;color:var(--charcoal)">' + escapeHtml(v.price_range || '') + '</span>' +
-            '<span style="padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;' + statusStyle + '">' + status.replace('_', ' ').toUpperCase() + '</span>' +
-          '</div></div>' +
-        (v.contact ? '<div style="margin:8px 0;font-size:0.9rem"><strong>Contact:</strong> ' + escapeHtml(v.contact) + '</div>' : '') +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;padding:12px;background:#f9f9f9;border-radius:8px">' +
-          '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Budgeted</label>' +
-          '<input type="number" value="' + budgeted + '" onchange="updateVendorBudget(' + v.id + ',this.value,null)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
-          '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Actual Cost</label>' +
-          '<input type="number" value="' + actual + '" onchange="updateVendorBudget(' + v.id + ',null,this.value)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
-        '</div>' +
-        (v.notes ? '<div class="note-box"><strong>Note:</strong> ' + escapeHtml(v.notes) + '</div>' : '') +
-        '<div class="vendor-actions">' +
-          '<button class="btn-sm btn-sm-fill" onclick="updateVendorStatus(' + v.id + ',\'booked\')">Mark Booked</button>' +
-          '<button class="btn-sm" onclick="updateVendorStatus(' + v.id + ',\'appointment_set\')">Set Appointment</button>' +
-          '<button class="btn-sm" onclick="updateVendorStatus(' + v.id + ',\'contacted\')">Mark Contacted</button>' +
-          '<button class="btn-sm" onclick="promptVendorContact(' + v.id + ')">Add Contact Name</button>' +
-          '<button class="btn-sm" onclick="promptVendorNote(' + v.id + ')">Add Note</button>' +
-          '<button class="btn-sm" onclick="deleteVendor(' + v.id + ')">Remove</button>' +
-        '</div></div>';
-    }).join('');
+    for (const [category, catVendors] of Object.entries(vendorsByCategory)) {
+      vendorHtml += '<div style="margin-bottom:32px"><h3 style="font-size:1.2rem;color:var(--charcoal);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--dusty-rose)">' + (categoryNames[category] || category.toUpperCase()) + '</h3>';
+
+      vendorHtml += catVendors.map(v => {
+        const stars = v.rating ? '&#9733;'.repeat(Math.round(v.rating)) + (v.rating < 5 ? '&#9734;'.repeat(5 - Math.round(v.rating)) : '') : '';
+        const status = v.status || 'pending';
+        const statusColors = { pending: 'background:#f0f0f0;color:#666', contacted: 'background:#e3f2fd;color:#1976d2', appointment_set: 'background:#fff3e0;color:#f57c00', booked: 'background:#e8f5e9;color:#388e3c', declined: 'background:#ffebee;color:#d32f2f' };
+        const statusStyle = statusColors[status] || statusColors.pending;
+        const budgeted = parseFloat(v.budgeted_amount) || 0;
+        const actual = parseFloat(v.actual_amount) || 0;
+        totalBudgeted += budgeted;
+        totalActual += actual;
+        const heartIcon = v.is_favorite ? '♥' : '♡';
+        const heartColor = v.is_favorite ? '#e91e63' : '#999';
+
+        return '<div class="vendor-card">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+            '<div style="flex:1">' +
+              '<div style="display:flex;align-items:center;gap:8px">' +
+                '<h4 style="margin:0">' + (v.website ? '<a href="' + escapeHtml(v.website) + '" target="_blank" style="color:var(--charcoal);text-decoration:none">' + escapeHtml(v.vendor_name) + ' &#8599;</a>' : escapeHtml(v.vendor_name)) + '</h4>' +
+              '</div>' +
+              '<div class="vendor-info">' +
+                '<span class="tag tag-blush" style="font-size:0.7rem">' + escapeHtml(v.category) + '</span>' +
+                (v.location ? '<span>&#128205; ' + escapeHtml(v.location) + '</span>' : '') +
+                '<span class="stars">' + stars + '</span>' +
+                (v.rating ? '<span>' + v.rating + ' (' + (v.reviews || 0) + ' reviews)</span>' : '') +
+                (v.phone ? '<span><a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dusty-rose);text-decoration:none">&#128222; ' + escapeHtml(v.phone) + '</a></span>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">' +
+              '<button onclick="toggleFavorite(' + v.id + ')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:' + heartColor + ';padding:0;line-height:1">' + heartIcon + '</button>' +
+              '<span style="font-weight:600;color:var(--charcoal)">' + escapeHtml(v.price_range || '') + '</span>' +
+              '<span style="padding:4px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;' + statusStyle + '">' + status.replace('_', ' ').toUpperCase() + '</span>' +
+            '</div>' +
+          '</div>' +
+          (v.contact || v.phone ? '<div style="margin:8px 0;font-size:0.9rem;padding:8px;background:#f0f7ff;border-radius:4px">' +
+            (v.contact ? '<div><strong>Contact:</strong> ' + escapeHtml(v.contact) + '</div>' : '') +
+            (v.phone ? '<div><strong>Phone:</strong> <a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dusty-rose)">' + escapeHtml(v.phone) + '</a></div>' : '') +
+          '</div>' : '') +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;padding:12px;background:#f9f9f9;border-radius:8px">' +
+            '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Budgeted</label>' +
+            '<input type="number" value="' + budgeted + '" onchange="updateVendorBudget(' + v.id + ',this.value,null)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
+            '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Actual Cost</label>' +
+            '<input type="number" value="' + actual + '" onchange="updateVendorBudget(' + v.id + ',null,this.value)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
+          '</div>' +
+          (v.notes ? '<div class="note-box"><strong>Note:</strong> ' + escapeHtml(v.notes) + '</div>' : '') +
+          '<div class="vendor-actions">' +
+            '<button class="btn-sm btn-sm-fill" onclick="updateVendorStatus(' + v.id + ',\'booked\')">Mark Booked</button>' +
+            '<button class="btn-sm" onclick="scheduleAppointment(' + v.id + ',\'' + escapeHtml(v.vendor_name) + '\',\'' + escapeHtml(v.location || '') + '\')">Schedule Appointment</button>' +
+            '<button class="btn-sm" onclick="updateVendorStatus(' + v.id + ',\'contacted\')">Mark Contacted</button>' +
+            '<button class="btn-sm" onclick="promptVendorContactInfo(' + v.id + ')">Add Contact Info</button>' +
+            '<button class="btn-sm" onclick="promptVendorNote(' + v.id + ')">Add Note</button>' +
+            '<button class="btn-sm" onclick="deleteVendor(' + v.id + ')">Remove</button>' +
+          '</div></div>';
+      }).join('');
+
+      vendorHtml += '</div>';
+    }
 
     const difference = totalActual - totalBudgeted;
     const diffColor = difference > 0 ? '#d32f2f' : '#388e3c';
@@ -1047,12 +1075,18 @@ async function loadEventAppointments(eventId) {
       const aptDate = a.date ? new Date(a.date).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : '';
       const aptTime = a.time ? a.time.substring(0, 5) : '';
       const statusClass = a.status === 'confirmed' ? 'status-confirmed' : 'status-pending';
+      const mapsUrl = a.location ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a.location) : '';
+
       return '<div class="apt-card">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px"><div>' +
           '<h4>' + escapeHtml(a.vendor_name || 'Appointment') + '</h4>' +
           '<div class="apt-type">' + escapeHtml(a.type) + '</div></div>' +
           '<span class="status-badge ' + statusClass + '">' + escapeHtml(a.status) + '</span></div>' +
-        '<div class="apt-meta">&#128197; ' + aptDate + ' at ' + aptTime + '</div>' +
+        '<div style="margin:8px 0">' +
+          '<div style="margin-bottom:4px">&#128197; ' + aptDate + ' at ' + aptTime + '</div>' +
+          (a.location ? '<div style="margin-bottom:4px">&#128205; <a href="' + mapsUrl + '" target="_blank" style="color:var(--dusty-rose);text-decoration:none">' + escapeHtml(a.location) + ' &#8599;</a></div>' : '') +
+          (a.contact_name ? '<div>&#128100; ' + escapeHtml(a.contact_name) + '</div>' : '') +
+        '</div>' +
         (a.notes ? '<div class="note-box">' + escapeHtml(a.notes) + '</div>' : '') +
         '<div class="vendor-actions"><button class="btn-sm" onclick="deleteAppointment(' + a.id + ')">Cancel</button></div></div>';
     }).join('');
@@ -1295,13 +1329,18 @@ async function promptVendorNote(id) {
   }
 }
 
-async function scheduleAppointment(vendorId, vendorName) {
-  const date = prompt('Enter appointment date (YYYY-MM-DD):');
-  if (!date) return;
-  const time = prompt('Enter appointment time (HH:MM):');
-  if (!time) return;
+async function scheduleAppointment(vendorId, vendorName, vendorLocation) {
   const type = prompt('Appointment type (e.g., Consultation, Tasting, Tour):');
   if (!type) return;
+
+  const date = prompt('Enter appointment date (YYYY-MM-DD):');
+  if (!date) return;
+
+  const time = prompt('Enter appointment time (HH:MM, e.g., 14:30):');
+  if (!time) return;
+
+  const location = prompt('Meeting location:', vendorLocation || '');
+  const contactName = prompt('Contact person name:');
 
   try {
     await API.post('/api/appointments', {
@@ -1310,10 +1349,54 @@ async function scheduleAppointment(vendorId, vendorName) {
       type: type,
       date: date,
       time: time,
+      location: location || '',
+      contactName: contactName || '',
       notes: '',
       status: 'pending'
     });
+
+    // Update vendor status to appointment_set
+    await API.put('/api/vendors/' + vendorId + '/notes', { status: 'appointment_set' });
+
     showToast('Appointment scheduled with ' + vendorName, 'success');
+    if (currentEventId) {
+      loadEventVendors(currentEventId);
+      loadEventAppointments(currentEventId);
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function toggleFavorite(id) {
+  try {
+    const vendors = await API.get('/api/vendors/saved?eventId=' + currentEventId);
+    const vendor = vendors.find(v => v.id === id);
+    const newFavoriteStatus = !vendor.is_favorite;
+
+    await API.put('/api/vendors/' + id + '/notes', { isFavorite: newFavoriteStatus });
+    if (currentEventId) {
+      loadEventVendors(currentEventId);
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function promptVendorContactInfo(id) {
+  const name = prompt('Contact person name:');
+  if (name === null) return;
+  const phone = prompt('Contact phone number:');
+  if (phone === null) return;
+
+  try {
+    await API.put('/api/vendors/' + id + '/notes', { contact: name, phone: phone });
+    showToast('Contact info saved', 'success');
+    if (currentEventId) {
+      loadEventVendors(currentEventId);
+    } else {
+      loadVendors();
+    }
   } catch (err) {
     showToast(err.message, 'error');
   }
