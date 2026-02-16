@@ -177,6 +177,7 @@ async function initializeDatabase() {
         website VARCHAR(255),
         notes TEXT,
         place_id VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
         contacted BOOLEAN DEFAULT false,
         booked BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -459,7 +460,7 @@ app.get('/api/vendors/saved', authenticateToken, async (req, res) => {
 
 app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
   try {
-    const { notes, contact } = req.body;
+    const { notes, contact, status } = req.body;
     const updates = [];
     const values = [];
     let paramCount = 1;
@@ -471,6 +472,16 @@ app.put('/api/vendors/:id/notes', authenticateToken, async (req, res) => {
     if (contact !== undefined) {
       updates.push(`contact = $${paramCount++}`);
       values.push(contact);
+    }
+    if (status !== undefined) {
+      updates.push(`status = $${paramCount++}`);
+      values.push(status);
+      // Update boolean flags based on status
+      if (status === 'contacted') {
+        updates.push(`contacted = true`);
+      } else if (status === 'booked') {
+        updates.push(`booked = true, contacted = true`);
+      }
     }
 
     if (updates.length === 0) {
