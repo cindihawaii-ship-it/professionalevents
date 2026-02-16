@@ -1005,11 +1005,11 @@ async function loadEventVendors(eventId) {
         '</div>' +
         (v.notes ? '<div class="note-box"><strong>Note:</strong> ' + escapeHtml(v.notes) + '</div>' : '') +
         '<div class="vendor-actions">' +
-          '<button class="btn-sm btn-sm-fill" onclick="updateVendorStatus(' + v.id + ',\'booked\')">✓ Booked</button>' +
-          '<button class="btn-sm" onclick="updateVendorStatus(' + v.id + ',\'appointment_set\')">📅 Appointment</button>' +
-          '<button class="btn-sm" onclick="updateVendorStatus(' + v.id + ',\'contacted\')">📞 Contacted</button>' +
-          '<button class="btn-sm" onclick="promptVendorContact(' + v.id + ')">👤 Contact Info</button>' +
-          '<button class="btn-sm" onclick="promptVendorNote(' + v.id + ')">📝 Note</button>' +
+          '<button class="btn-sm btn-sm-fill" onclick="updateVendorStatus(' + v.id + ',\'booked\')">Mark Booked</button>' +
+          '<button class="btn-sm" onclick="updateVendorStatus(' + v.id + ',\'appointment_set\')">Set Appointment</button>' +
+          '<button class="btn-sm" onclick="updateVendorStatus(' + v.id + ',\'contacted\')">Mark Contacted</button>' +
+          '<button class="btn-sm" onclick="promptVendorContact(' + v.id + ')">Add Contact Name</button>' +
+          '<button class="btn-sm" onclick="promptVendorNote(' + v.id + ')">Add Note</button>' +
           '<button class="btn-sm" onclick="deleteVendor(' + v.id + ')">Remove</button>' +
         '</div></div>';
     }).join('');
@@ -1240,7 +1240,7 @@ async function updateVendorBudget(id, budgeted, actual) {
     if (actual !== null) payload.actualAmount = parseFloat(actual) || 0;
 
     await API.put('/api/vendors/' + id + '/notes', payload);
-    showToast('Budget updated', 'success');
+    // Silently reload vendors to update budget summary
     if (currentEventId) {
       loadEventVendors(currentEventId);
     }
