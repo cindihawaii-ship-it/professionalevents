@@ -29,7 +29,7 @@ img{max-width:100%}
 .nav-inner{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
 .logo{font-family:var(--font-heading);font-size:1.6rem;font-weight:600;color:var(--charcoal);letter-spacing:0.02em}
 .logo span{color:var(--dusty-rose)}
-.nav-links{display:flex;align-items:center;gap:8px}
+.nav-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .nav-links a{font-size:0.9rem;padding:8px 18px;border-radius:6px;transition:all 0.3s;color:var(--warm-gray);font-weight:500;letter-spacing:0.03em;text-transform:uppercase}
 .nav-links a:hover{color:var(--charcoal);background:var(--sand)}
 .btn-nav{background:var(--charcoal)!important;color:var(--cream)!important;border-radius:6px!important;font-weight:600!important}
@@ -165,7 +165,7 @@ footer .logo span{color:var(--dusty-rose)}
 .form-input{width:100%;padding:12px 16px;border:1.5px solid var(--sand);border-radius:8px;font-size:1rem;font-family:var(--font-body);color:var(--charcoal);background:var(--linen);transition:all 0.3s;outline:none}
 .form-input:focus{border-color:var(--dusty-rose);background:var(--white);box-shadow:0 0 0 3px rgba(212,160,160,0.15)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;max-width:100%;overflow-x:hidden}
 .cat-btn{padding:16px 12px;border:1.5px solid var(--sand);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--linen)}
 .cat-btn:hover{border-color:var(--mauve)}
 .cat-btn.selected{border-color:var(--dusty-rose);background:var(--blush)}
@@ -383,19 +383,19 @@ footer .logo span{color:var(--dusty-rose)}
       <div class="pricing-grid">
         <div class="price-card">
           <h3>Essentials</h3>
-          <div><span class="price-amount">Free</span></div>
+          <div><span class="price-amount">$5</span></div>
           <ul class="price-features">
             <li><span class="check">&#10003;</span> Create 1 event</li>
             <li><span class="check">&#10003;</span> Search up to 20 vendors</li>
             <li><span class="check">&#10003;</span> Basic vendor profiles</li>
             <li><span class="check">&#10003;</span> Email support</li>
           </ul>
-          <button class="btn-card btn-card-outline" onclick="requireAuth('create')">Get Started</button>
+          <button class="btn-card btn-card-outline" onclick="handleUpgrade('essentials')">Get Started</button>
         </div>
         <div class="price-card featured">
           <div class="featured-label">Most Popular</div>
           <h3>Professional</h3>
-          <div><span class="price-amount">$29</span><span class="price-period"> / event</span></div>
+          <div><span class="price-amount">$29</span></div>
           <ul class="price-features">
             <li><span class="check">&#10003;</span> Unlimited vendor search</li>
             <li><span class="check">&#10003;</span> Curated recommendations</li>
@@ -408,7 +408,7 @@ footer .logo span{color:var(--dusty-rose)}
         </div>
         <div class="price-card premium">
           <h3>Premier</h3>
-          <div><span class="price-amount">$99</span><span class="price-period"> / year</span></div>
+          <div><span class="price-amount">$99</span></div>
           <ul class="price-features">
             <li><span class="check">&#10003;</span> Everything in Professional</li>
             <li><span class="check">&#10003;</span> Unlimited events</li>
@@ -880,9 +880,12 @@ async function loadVendors() {
             (v.rating ? '<span>' + v.rating + ' (' + (v.reviews || 0) + ' reviews)</span>' : '') +
           '</div></div>' +
           '<span style="font-weight:600;color:var(--charcoal)">' + escapeHtml(v.price_range || '') + '</span></div>' +
+        (v.contact ? '<div style="margin:8px 0;font-size:0.9rem"><strong>Contact:</strong> ' + escapeHtml(v.contact) + '</div>' : '') +
         (v.notes ? '<div class="note-box"><strong>Note:</strong> ' + escapeHtml(v.notes) + '</div>' : '') +
         '<div class="vendor-actions">' +
-          '<button class="btn-sm" onclick="promptVendorNote(' + v.id + ')">&#128221; Add Note</button>' +
+          '<button class="btn-sm btn-sm-fill" onclick="scheduleAppointment(' + v.id + ',\'' + escapeHtml(v.vendor_name) + '\')">&#128197; Schedule</button>' +
+          '<button class="btn-sm" onclick="promptVendorContact(' + v.id + ')">&#128100; Contact</button>' +
+          '<button class="btn-sm" onclick="promptVendorNote(' + v.id + ')">&#128221; Note</button>' +
           '<button class="btn-sm" onclick="deleteVendor(' + v.id + ')">Remove</button>' +
         '</div></div>';
     }).join('');
@@ -953,8 +956,39 @@ async function handleCreateEvent(e) {
   };
 
   try {
-    await API.post('/api/events', payload);
-    showToast('Event created successfully!', 'success');
+    const eventData = await API.post('/api/events', payload);
+
+    // Search for vendors
+    const vendorPayload = {
+      location: payload.location,
+      categories: payload.categories,
+      budget: payload.budget,
+      minRating: payload.minRating
+    };
+
+    const vendors = await API.post('/api/vendors/search', vendorPayload);
+
+    // Save vendors to the event
+    if (vendors && vendors.length > 0) {
+      for (const vendor of vendors.slice(0, 10)) {
+        await API.post('/api/vendors', {
+          eventId: eventData.event.id,
+          vendorName: vendor.name,
+          category: vendor.category,
+          location: vendor.location,
+          rating: vendor.rating,
+          reviews: vendor.reviews,
+          priceRange: vendor.priceRange,
+          contact: vendor.contact || '',
+          website: vendor.website || '',
+          placeId: vendor.placeId || ''
+        });
+      }
+      showToast(`Event created! Found ${vendors.length} vendors`, 'success');
+    } else {
+      showToast('Event created successfully!', 'success');
+    }
+
     document.getElementById('create-event-form').reset();
     showPage('dashboard');
   } catch (err) {
@@ -983,6 +1017,18 @@ async function deleteEvent(id) {
 // =========================================================================
 // Vendor Actions
 // =========================================================================
+async function promptVendorContact(id) {
+  const contact = prompt('Enter contact person name:');
+  if (contact === null) return;
+  try {
+    await API.put('/api/vendors/' + id + '/notes', { contact: contact });
+    showToast('Contact saved', 'success');
+    loadVendors();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
 async function promptVendorNote(id) {
   const note = prompt('Enter a note for this vendor:');
   if (note === null) return;
@@ -990,6 +1036,30 @@ async function promptVendorNote(id) {
     await API.put('/api/vendors/' + id + '/notes', { notes: note });
     showToast('Note saved', 'success');
     loadVendors();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function scheduleAppointment(vendorId, vendorName) {
+  const date = prompt('Enter appointment date (YYYY-MM-DD):');
+  if (!date) return;
+  const time = prompt('Enter appointment time (HH:MM):');
+  if (!time) return;
+  const type = prompt('Appointment type (e.g., Consultation, Tasting, Tour):');
+  if (!type) return;
+
+  try {
+    await API.post('/api/appointments', {
+      vendorId: vendorId,
+      eventId: null,
+      type: type,
+      date: date,
+      time: time,
+      notes: '',
+      status: 'pending'
+    });
+    showToast('Appointment scheduled with ' + vendorName, 'success');
   } catch (err) {
     showToast(err.message, 'error');
   }
