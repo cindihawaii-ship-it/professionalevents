@@ -229,6 +229,13 @@ async function initializeDatabase() {
         ADD COLUMN IF NOT EXISTS phone VARCHAR(50),
         ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN DEFAULT false;
       `);
+
+      await pool.query(`
+        ALTER TABLE appointments
+        ADD COLUMN IF NOT EXISTS location VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS contact_name VARCHAR(255);
+      `);
+
       console.log('Database migrations completed');
     } catch (migrationError) {
       console.log('Migration note:', migrationError.message);
@@ -721,7 +728,9 @@ function generateSampleVendors(location, categories, minRating) {
     const items = sampleData[cat] || [];
     for (const item of items) {
       if (minRating && item.rating < parseFloat(minRating)) continue;
-      vendors.push({ ...item, category: cat, location: loc, contact: '', phone: item.phone || '', website: '' });
+      // Add https:// to website if it doesn't have it
+      const website = item.website ? (item.website.startsWith('http') ? item.website : 'https://www.' + item.website) : '';
+      vendors.push({ ...item, category: cat, location: loc, contact: '', phone: item.phone || '', website: website });
     }
   }
   return vendors;
