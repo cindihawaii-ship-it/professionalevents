@@ -293,6 +293,27 @@ footer .logo span{color:var(--dusty-rose)}
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- CONTACT INFO MODAL -->
+<div class="modal-overlay" id="contact-modal">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeContactModal()">&times;</button>
+    <h2>Add Contact Information</h2>
+    <p class="modal-subtitle">Save contact details for this vendor</p>
+    <div class="form-group">
+      <label>Contact Person Name</label>
+      <input type="text" class="form-input" id="contact-name" placeholder="e.g., Sarah Johnson">
+    </div>
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" class="form-input" id="contact-phone" placeholder="(555) 123-4567">
+    </div>
+    <div class="form-actions">
+      <button class="btn-outline" onclick="closeContactModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveContactInfo()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
 <!-- APPOINTMENT CALENDAR MODAL -->
 <div class="modal-overlay" id="appointment-modal">
   <div class="modal" style="max-width:600px">
@@ -1008,16 +1029,8 @@ async function loadEventVendors(eventId) {
       return;
     }
 
-    // Sort vendors: favorites first, then by status, then by rating
+    // Sort vendors: just by rating (booked vendors will be in separate section)
     vendors.sort((a, b) => {
-      if (a.is_favorite && !b.is_favorite) return -1;
-      if (!a.is_favorite && b.is_favorite) return 1;
-
-      const statusOrder = { booked: 1, appointment_set: 2, contacted: 3, pending: 4, declined: 5 };
-      const aOrder = statusOrder[a.status] || 4;
-      const bOrder = statusOrder[b.status] || 4;
-      if (aOrder !== bOrder) return aOrder - bOrder;
-
       return (b.rating || 0) - (a.rating || 0);
     });
 
@@ -1119,13 +1132,13 @@ async function loadEventVendors(eventId) {
     container.innerHTML =
       '<div style="background:linear-gradient(135deg,#f5f1ed 0%,#e8dfd6 100%);padding:20px;border-radius:12px;margin-bottom:24px">' +
         '<h3 style="margin:0 0 16px 0;font-size:1.1rem">Budget Summary</h3>' +
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">' +
-          '<div style="text-align:center"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Total Budgeted</div>' +
-          '<div style="font-size:1.5rem;font-weight:600;color:var(--charcoal)">$' + totalBudgeted.toFixed(2) + '</div></div>' +
-          '<div style="text-align:center"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Total Actual</div>' +
-          '<div style="font-size:1.5rem;font-weight:600;color:var(--charcoal)">$' + totalActual.toFixed(2) + '</div></div>' +
-          '<div style="text-align:center"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Difference</div>' +
-          '<div style="font-size:1.5rem;font-weight:600;color:' + diffColor + '">' + (difference > 0 ? '+' : '') + '$' + difference.toFixed(2) + '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-around">' +
+          '<div style="text-align:center;min-width:100px"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Total Budgeted</div>' +
+          '<div style="font-size:1.3rem;font-weight:600;color:var(--charcoal)">$' + totalBudgeted.toFixed(2) + '</div></div>' +
+          '<div style="text-align:center;min-width:100px"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Total Actual</div>' +
+          '<div style="font-size:1.3rem;font-weight:600;color:var(--charcoal)">$' + totalActual.toFixed(2) + '</div></div>' +
+          '<div style="text-align:center;min-width:100px"><div style="font-size:0.75rem;color:#666;margin-bottom:4px">Difference</div>' +
+          '<div style="font-size:1.3rem;font-weight:600;color:' + diffColor + '">' + (difference > 0 ? '+' : '') + '$' + difference.toFixed(2) + '</div>' +
           '<div style="font-size:0.75rem;font-weight:600;color:' + diffColor + '">' + diffText + '</div></div>' +
         '</div></div>' + vendorHtml;
   } catch (err) {
@@ -1357,8 +1370,16 @@ async function updateVendorBudget(id, budgeted, actual) {
 async function updateVendorStatus(id, status) {
   try {
     await API.put('/api/vendors/' + id + '/notes', { status: status });
-    showToast('Status updated - refresh event to see in Booked section', 'success');
-    // Don't reload - let user manually refresh to avoid confusing jumps
+
+    if (status === 'booked') {
+      showToast('Vendor marked as booked! Refresh event to see in Booked section', 'success');
+      // Reload to show updated status immediately and move to booked section
+      if (currentEventId) {
+        loadEventVendors(currentEventId);
+      }
+    } else {
+      showToast('Status updated', 'success');
+    }
   } catch (err) {
     showToast(err.message, 'error');
   }
@@ -1562,15 +1583,34 @@ async function toggleFavorite(id) {
   }
 }
 
-async function promptVendorContactInfo(id) {
-  const name = prompt('Contact person name:');
-  if (name === null) return;
-  const phone = prompt('Contact phone number:');
-  if (phone === null) return;
+let currentContactVendorId = null;
+
+function promptVendorContactInfo(id) {
+  currentContactVendorId = id;
+  document.getElementById('contact-name').value = '';
+  document.getElementById('contact-phone').value = '';
+  document.getElementById('contact-modal').classList.add('active');
+}
+
+function closeContactModal() {
+  document.getElementById('contact-modal').classList.remove('active');
+  currentContactVendorId = null;
+}
+
+async function saveContactInfo() {
+  const name = document.getElementById('contact-name').value.trim();
+  const phone = document.getElementById('contact-phone').value.trim();
+
+  if (!name && !phone) {
+    showToast('Please enter at least a name or phone number', 'error');
+    return;
+  }
 
   try {
-    await API.put('/api/vendors/' + id + '/notes', { contact: name, phone: phone });
+    await API.put('/api/vendors/' + currentContactVendorId + '/notes', { contact: name, phone: phone });
     showToast('Contact info saved', 'success');
+    closeContactModal();
+
     if (currentEventId) {
       loadEventVendors(currentEventId);
     } else {
