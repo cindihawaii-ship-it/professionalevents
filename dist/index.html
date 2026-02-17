@@ -1307,22 +1307,6 @@ async function viewEvent(id) {
       (event.guests ? '<span>&#128101; ' + event.guests + ' guests</span>' : '') +
       '<span>' + escapeHtml(event.budget || '') + '</span>';
 
-    // Load event info
-    let categoriesText = 'None';
-    if (event.categories) {
-      try {
-        const cats = typeof event.categories === 'string' ? JSON.parse(event.categories) : event.categories;
-        categoriesText = Array.isArray(cats) ? cats.join(', ') : String(cats);
-      } catch (e) {
-        categoriesText = String(event.categories);
-      }
-    }
-
-    document.getElementById('event-info-content').innerHTML =
-      '<div class="event-card"><h4>Event Type</h4><p>' + escapeHtml(event.type) + '</p></div>' +
-      '<div class="event-card"><h4>Categories</h4><p>' + escapeHtml(categoriesText) + '</p></div>' +
-      (event.requirements ? '<div class="event-card"><h4>Special Requirements</h4><p>' + escapeHtml(event.requirements) + '</p></div>' : '');
-
     showPage('event-detail');
     loadEventVendors(id);
     loadEventAppointments(id);
