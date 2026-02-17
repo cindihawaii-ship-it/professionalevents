@@ -19,7 +19,7 @@
   --font-heading:'Cormorant Garamond',Georgia,'Times New Roman',serif;
   --font-body:'Nunito Sans','Segoe UI',Roboto,sans-serif;
 }
-body{font-family:var(--font-body);line-height:1.7;color:var(--charcoal);background:var(--cream);min-height:100vh;font-weight:400;font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);line-height:1.7;color:var(--charcoal);background:var(--cream);min-height:100vh;font-weight:400;font-size:16px;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
 img{max-width:100%}
 .container{max-width:1100px;margin:0 auto;padding:0 24px}
@@ -686,10 +686,9 @@ footer .logo span{color:var(--dusty-rose)}
   </div>
   <div class="content-area">
     <div class="container">
-      <div class="tabs">
+      <div class="tabs" style="margin-bottom:24px">
         <button class="tab active" onclick="switchTab(this,'tab-event-vendors')">Vendors</button>
         <button class="tab" onclick="switchTab(this,'tab-event-appointments')">Appointments</button>
-        <button class="tab" onclick="switchTab(this,'tab-event-info')">Event Info</button>
       </div>
 
       <!-- Event Vendors Tab -->
@@ -712,12 +711,6 @@ footer .logo span{color:var(--dusty-rose)}
             <p>Schedule appointments with vendors for this event</p>
           </div>
         </div>
-      </div>
-
-      <!-- Event Info Tab -->
-      <div id="tab-event-info" class="tab-content" style="display:none">
-        <h2 style="font-family:var(--font-heading);font-size:1.4rem;font-weight:500;color:var(--soft-black);margin-bottom:24px">Event Information</h2>
-        <div id="event-info-content"></div>
       </div>
     </div>
   </div>
@@ -1149,7 +1142,8 @@ async function loadEventVendors(eventId) {
 async function loadEventAppointments(eventId) {
   const container = document.getElementById('event-appointments-list');
   try {
-    const apts = await API.get('/api/appointments?eventId=' + eventId);
+    const allApts = await API.get('/api/appointments');
+    const apts = allApts.filter(a => a.event_id === eventId);
     if (apts.length === 0) {
       container.innerHTML = '<div class="empty-state"><h3>No Appointments</h3><p>Schedule appointments with vendors for this event</p></div>';
       return;
@@ -1253,7 +1247,7 @@ async function handleCreateEvent(e) {
     const vendors = await API.post('/api/vendors/search', vendorPayload);
 
     // Save vendors to the event
-    const eventId = eventData.event ? eventData.event.id : eventData.id;
+    const eventId = eventData.id;
     if (vendors && vendors.length > 0) {
       for (const vendor of vendors) {
         try {
@@ -1372,13 +1366,18 @@ async function updateVendorStatus(id, status) {
     await API.put('/api/vendors/' + id + '/notes', { status: status });
 
     if (status === 'booked') {
-      showToast('Vendor marked as booked! Refresh event to see in Booked section', 'success');
-      // Reload to show updated status immediately and move to booked section
-      if (currentEventId) {
-        loadEventVendors(currentEventId);
-      }
+      showToast('Vendor marked as booked!', 'success');
+    } else if (status === 'contacted') {
+      showToast('Vendor marked as contacted!', 'success');
     } else {
       showToast('Status updated', 'success');
+    }
+
+    // Always reload to show updated status immediately
+    if (currentEventId) {
+      loadEventVendors(currentEventId);
+    } else {
+      loadVendors();
     }
   } catch (err) {
     showToast(err.message, 'error');
@@ -1626,7 +1625,11 @@ async function deleteVendor(id) {
   try {
     await API.del('/api/vendors/' + id);
     showToast('Vendor removed', 'success');
-    loadVendors();
+    if (currentEventId) {
+      loadEventVendors(currentEventId);
+    } else {
+      loadVendors();
+    }
   } catch (err) {
     showToast(err.message, 'error');
   }
@@ -1650,7 +1653,11 @@ async function deleteAppointment(id) {
   try {
     await API.del('/api/appointments/' + id);
     showToast('Appointment cancelled', 'success');
-    loadAppointments();
+    if (currentEventId) {
+      loadEventAppointments(currentEventId);
+    } else {
+      loadAppointments();
+    }
   } catch (err) {
     showToast(err.message, 'error');
   }
