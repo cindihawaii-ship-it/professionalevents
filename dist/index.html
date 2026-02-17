@@ -176,7 +176,7 @@ footer .logo span{color:var(--dusty-rose)}
 /* Auth Modal */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,40,37,0.45);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center}
 .modal-overlay.active{display:flex}
-.modal{background:var(--white);border-radius:16px;padding:48px 40px;max-width:440px;width:90%;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.15);animation:modalIn 0.3s ease}
+.modal{background:var(--white);border-radius:16px;padding:48px 40px;max-width:440px;width:90%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.15);animation:modalIn 0.3s ease}
 @keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:1.5rem;color:var(--warm-gray);cursor:pointer;padding:4px;line-height:1;transition:color 0.2s}
 .modal-close:hover{color:var(--charcoal)}
@@ -310,6 +310,23 @@ footer .logo span{color:var(--dusty-rose)}
     <div class="form-actions">
       <button class="btn-outline" onclick="closeContactModal()">Cancel</button>
       <button class="btn-primary" onclick="saveContactInfo()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE MODAL -->
+<div class="modal-overlay" id="note-modal">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeNoteModal()">&times;</button>
+    <h2>Add Note</h2>
+    <p class="modal-subtitle">Save a note for this vendor</p>
+    <div class="form-group">
+      <label>Note</label>
+      <textarea class="form-input" rows="4" id="vendor-note" placeholder="e.g., Loved their portfolio, ask about weekend availability..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-outline" onclick="closeNoteModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveVendorNote()">Save Note</button>
     </div>
   </div>
 </div>
@@ -1384,12 +1401,32 @@ async function promptVendorContact(id) {
   }
 }
 
-async function promptVendorNote(id) {
-  const note = prompt('Enter a note for this vendor:');
-  if (note === null) return;
+let currentNoteVendorId = null;
+
+function promptVendorNote(id) {
+  currentNoteVendorId = id;
+  document.getElementById('vendor-note').value = '';
+  document.getElementById('note-modal').classList.add('active');
+}
+
+function closeNoteModal() {
+  document.getElementById('note-modal').classList.remove('active');
+  currentNoteVendorId = null;
+}
+
+async function saveVendorNote() {
+  const note = document.getElementById('vendor-note').value.trim();
+
+  if (!note) {
+    showToast('Please enter a note', 'error');
+    return;
+  }
+
   try {
-    await API.put('/api/vendors/' + id + '/notes', { notes: note });
+    await API.put('/api/vendors/' + currentNoteVendorId + '/notes', { notes: note });
     showToast('Note saved', 'success');
+    closeNoteModal();
+
     if (currentEventId) {
       loadEventVendors(currentEventId);
     } else {
