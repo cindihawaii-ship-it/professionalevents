@@ -245,7 +245,13 @@ async function initializeDatabase() {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('CRITICAL: JWT_SECRET is not set in production! Using random secret (sessions will not persist across restarts)');
+    return require('crypto').randomBytes(32).toString('hex');
+  }
+  return 'dev-secret-key-not-for-production';
+})();
 
 // ---------------------------------------------------------------------------
 // Auth Middleware
@@ -606,6 +612,21 @@ app.post('/api/vendors/search', authenticateToken, async (req, res) => {
             else if (place.price_level === 3) priceRange = '$$$';
             else if (place.price_level >= 4) priceRange = '$$$$';
 
+            // Fetch place details to get website and phone
+            let website = '';
+            let phone = '';
+            try {
+              const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=website,formatted_phone_number&key=${GOOGLE_PLACES_API_KEY}`;
+              const detailsResponse = await fetch(detailsUrl);
+              const detailsData = await detailsResponse.json();
+              if (detailsData.result) {
+                website = detailsData.result.website || '';
+                phone = detailsData.result.formatted_phone_number || '';
+              }
+            } catch (detailsErr) {
+              console.warn('Could not fetch details for', place.name, detailsErr.message);
+            }
+
             allResults.push({
               name: place.name,
               category,
@@ -615,7 +636,8 @@ app.post('/api/vendors/search', authenticateToken, async (req, res) => {
               priceRange,
               placeId: place.place_id,
               contact: '',
-              website: '',
+              website: website,
+              phone: phone,
             });
           }
         }
@@ -669,58 +691,58 @@ function generateSampleVendors(location, categories, minRating) {
   const vendors = [];
   const sampleData = {
     venue: [
-      { name: 'Golden Gate Club', rating: 5.0, reviews: 248, priceRange: '$$$', phone: '(555) 123-4567', website: 'goldengateclub.com' },
-      { name: 'The Conservatory', rating: 4.8, reviews: 182, priceRange: '$$$$', phone: '(555) 234-5678', website: 'theconservatory.com' },
-      { name: 'Bayview Estate', rating: 4.7, reviews: 135, priceRange: '$$$', phone: '(555) 345-6789', website: 'bayviewestate.com' },
-      { name: 'Sunset Pavilion', rating: 4.6, reviews: 92, priceRange: '$$', phone: '(555) 456-7890', website: 'sunsetpavilion.com' },
+      { name: 'The Knot - Find Venues', rating: 5.0, reviews: 248, priceRange: '$$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-venues' },
+      { name: 'WeddingWire Venues', rating: 4.8, reviews: 182, priceRange: '$$$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-venues' },
+      { name: 'Zola Venue Directory', rating: 4.7, reviews: 135, priceRange: '$$$', phone: '(888) 972-9652', website: 'https://www.zola.com/wedding-vendors/venues' },
+      { name: 'EventUp Venue Marketplace', rating: 4.6, reviews: 92, priceRange: '$$', phone: '(415) 200-2299', website: 'https://www.eventup.com' },
     ],
     catering: [
-      { name: 'On The Roll Catering', rating: 4.9, reviews: 312, priceRange: '$$', phone: '(555) 567-8901', website: 'ontheroll.com' },
-      { name: 'Farm & Table Co.', rating: 4.8, reviews: 198, priceRange: '$$$', phone: '(555) 678-9012', website: 'farmandtable.com' },
-      { name: 'Savory Events', rating: 4.7, reviews: 167, priceRange: '$$', phone: '(555) 789-0123', website: 'savoryevents.com' },
-      { name: 'Coastal Cuisine Catering', rating: 4.6, reviews: 143, priceRange: '$$$', phone: '(555) 890-1234', website: 'coastalcuisine.com' },
+      { name: 'The Knot - Caterers', rating: 4.9, reviews: 312, priceRange: '$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/catering' },
+      { name: 'WeddingWire Catering', rating: 4.8, reviews: 198, priceRange: '$$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/catering' },
+      { name: 'Thumbtack Caterers', rating: 4.7, reviews: 167, priceRange: '$$', phone: '(844) 776-2825', website: 'https://www.thumbtack.com/k/catering-services/near-me' },
+      { name: 'Yelp Event Catering', rating: 4.6, reviews: 143, priceRange: '$$$', phone: '(877) 767-9357', website: 'https://www.yelp.com/search?find_desc=caterers' },
     ],
     photography: [
-      { name: 'Avery Wong Photography', rating: 5.0, reviews: 156, priceRange: '$$$', phone: '(555) 901-2345', website: 'averywong.com' },
-      { name: 'Light & Bloom Studio', rating: 4.9, reviews: 203, priceRange: '$$', phone: '(555) 012-3456', website: 'lightandbloom.com' },
-      { name: 'Captured Moments', rating: 4.8, reviews: 124, priceRange: '$$', phone: '(555) 123-4568', website: 'capturedmoments.com' },
-      { name: 'Lens & Love Photography', rating: 4.7, reviews: 98, priceRange: '$$$', phone: '(555) 234-5679', website: 'lensandlove.com' },
+      { name: 'The Knot - Photographers', rating: 5.0, reviews: 156, priceRange: '$$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-photographers' },
+      { name: 'WeddingWire Photography', rating: 4.9, reviews: 203, priceRange: '$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-photographers' },
+      { name: 'Thumbtack Photographers', rating: 4.8, reviews: 124, priceRange: '$$', phone: '(844) 776-2825', website: 'https://www.thumbtack.com/k/wedding-photographers/near-me' },
+      { name: 'Zola Photography Directory', rating: 4.7, reviews: 98, priceRange: '$$$', phone: '(888) 972-9652', website: 'https://www.zola.com/wedding-vendors/photographers' },
     ],
     videography: [
-      { name: 'Cinematic Stories', rating: 4.9, reviews: 98, priceRange: '$$$', phone: '(555) 345-6780', website: 'cinematicstories.com' },
-      { name: 'Frame by Frame Films', rating: 4.8, reviews: 87, priceRange: '$$', phone: '(555) 456-7891', website: 'framebyframe.com' },
-      { name: 'Motion & Emotion Videos', rating: 4.7, reviews: 76, priceRange: '$$', phone: '(555) 567-8902', website: 'motionemotion.com' },
-      { name: 'Reel Moments Production', rating: 4.6, reviews: 65, priceRange: '$$$', phone: '(555) 678-9013', website: 'reelmoments.com' },
+      { name: 'The Knot - Videographers', rating: 4.9, reviews: 98, priceRange: '$$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-videographers' },
+      { name: 'WeddingWire Videography', rating: 4.8, reviews: 87, priceRange: '$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-videographers' },
+      { name: 'Thumbtack Videographers', rating: 4.7, reviews: 76, priceRange: '$$', phone: '(844) 776-2825', website: 'https://www.thumbtack.com/k/wedding-videographers/near-me' },
+      { name: 'Zola Videography Services', rating: 4.6, reviews: 65, priceRange: '$$$', phone: '(888) 972-9652', website: 'https://www.zola.com/wedding-vendors/videographers' },
     ],
     music: [
-      { name: 'Harmony Live Band', rating: 4.9, reviews: 145, priceRange: '$$', phone: '(555) 789-0124', website: 'harmonylive.com' },
-      { name: 'DJ Elara', rating: 4.9, reviews: 234, priceRange: '$$', phone: '(555) 890-1235', website: 'djelara.com' },
-      { name: 'Rhythm & Soul Entertainment', rating: 4.8, reviews: 187, priceRange: '$$$', phone: '(555) 901-2346', website: 'rhythmandsoul.com' },
-      { name: 'The Sound Wave DJs', rating: 4.7, reviews: 156, priceRange: '$$', phone: '(555) 012-3457', website: 'soundwavedjs.com' },
+      { name: 'The Knot - DJs & Bands', rating: 4.9, reviews: 145, priceRange: '$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-music' },
+      { name: 'WeddingWire Entertainment', rating: 4.9, reviews: 234, priceRange: '$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-entertainment' },
+      { name: 'GigSalad Event Musicians', rating: 4.8, reviews: 187, priceRange: '$$$', phone: '(866) 342-9794', website: 'https://www.gigsalad.com/Wedding-Entertainment' },
+      { name: 'Thumbtack Wedding DJs', rating: 4.7, reviews: 156, priceRange: '$$', phone: '(844) 776-2825', website: 'https://www.thumbtack.com/k/wedding-djs/near-me' },
     ],
     florist: [
-      { name: 'Petal & Stem', rating: 5.0, reviews: 178, priceRange: '$$', phone: '(555) 123-4569', website: 'petalandstem.com' },
-      { name: 'Garden of Eve Florals', rating: 4.9, reviews: 142, priceRange: '$$$', phone: '(555) 234-5680', website: 'gardenofeve.com' },
-      { name: 'Bloom & Blossom', rating: 4.8, reviews: 134, priceRange: '$$', phone: '(555) 345-6781', website: 'bloomblossom.com' },
-      { name: 'Rose & Lily Designs', rating: 4.7, reviews: 112, priceRange: '$$$', phone: '(555) 456-7892', website: 'roselily.com' },
+      { name: 'The Knot - Florists', rating: 5.0, reviews: 178, priceRange: '$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-florists' },
+      { name: 'WeddingWire Florists', rating: 4.9, reviews: 142, priceRange: '$$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-flowers' },
+      { name: '1-800-Flowers Weddings', rating: 4.8, reviews: 134, priceRange: '$$', phone: '(800) 356-9377', website: 'https://www.1800flowers.com/wedding-flowers' },
+      { name: 'FTD Wedding Flowers', rating: 4.7, reviews: 112, priceRange: '$$$', phone: '(800) 736-3383', website: 'https://www.ftd.com/wedding-flowers' },
     ],
     planner: [
-      { name: 'Grace & Gather Events', rating: 5.0, reviews: 92, priceRange: '$$$', phone: '(555) 567-8903', website: 'graceandgather.com' },
-      { name: 'Elegant Affairs Co.', rating: 4.9, reviews: 116, priceRange: '$$$$', phone: '(555) 678-9014', website: 'elegantaffairs.com' },
-      { name: 'Dream Day Planners', rating: 4.8, reviews: 87, priceRange: '$$$', phone: '(555) 789-0125', website: 'dreamdayplanners.com' },
-      { name: 'Perfect Moments Planning', rating: 4.7, reviews: 73, priceRange: '$$', phone: '(555) 890-1236', website: 'perfectmoments.com' },
+      { name: 'The Knot - Wedding Planners', rating: 5.0, reviews: 92, priceRange: '$$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-planners' },
+      { name: 'WeddingWire Planners', rating: 4.9, reviews: 116, priceRange: '$$$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-planners' },
+      { name: 'Zola Event Planners', rating: 4.8, reviews: 87, priceRange: '$$$', phone: '(888) 972-9652', website: 'https://www.zola.com/wedding-vendors/wedding-planners' },
+      { name: 'Thumbtack Event Planners', rating: 4.7, reviews: 73, priceRange: '$$', phone: '(844) 776-2825', website: 'https://www.thumbtack.com/k/event-planners/near-me' },
     ],
     transport: [
-      { name: 'Premier Limousine', rating: 4.8, reviews: 201, priceRange: '$$', phone: '(555) 901-2347', website: 'premierlimo.com' },
-      { name: 'Luxury Ride Services', rating: 4.7, reviews: 156, priceRange: '$$$', phone: '(555) 012-3458', website: 'luxuryride.com' },
-      { name: 'Classic Car Rentals', rating: 4.7, reviews: 134, priceRange: '$$', phone: '(555) 123-4570', website: 'classiccarrentals.com' },
-      { name: 'Elite Transportation', rating: 4.6, reviews: 98, priceRange: '$$$', phone: '(555) 234-5681', website: 'elitetrans.com' },
+      { name: 'The Knot - Transportation', rating: 4.8, reviews: 201, priceRange: '$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-transportation' },
+      { name: 'WeddingWire Transportation', rating: 4.7, reviews: 156, priceRange: '$$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-transportation' },
+      { name: 'Uber for Business Events', rating: 4.7, reviews: 134, priceRange: '$$', phone: '(800) 593-7069', website: 'https://www.uber.com/us/en/business' },
+      { name: 'Lyft Events & Groups', rating: 4.6, reviews: 98, priceRange: '$$$', phone: '(844) 250-2773', website: 'https://www.lyft.com/rider/events' },
     ],
     cake: [
-      { name: 'Sweet Layers Bakery', rating: 5.0, reviews: 267, priceRange: '$$', phone: '(555) 345-6782', website: 'sweetlayers.com' },
-      { name: 'Flour & Fondant', rating: 4.9, reviews: 189, priceRange: '$$$', phone: '(555) 456-7893', website: 'flourfondant.com' },
-      { name: 'Sugar & Spice Cakes', rating: 4.8, reviews: 176, priceRange: '$$', phone: '(555) 567-8904', website: 'sugarspice.com' },
-      { name: 'Divine Desserts Studio', rating: 4.7, reviews: 143, priceRange: '$$$', phone: '(555) 678-9015', website: 'divinedesserts.com' },
+      { name: 'The Knot - Wedding Cakes', rating: 5.0, reviews: 267, priceRange: '$$', phone: '(877) 843-5668', website: 'https://www.theknot.com/marketplace/wedding-cakes' },
+      { name: 'WeddingWire Bakeries', rating: 4.9, reviews: 189, priceRange: '$$$', phone: '(866) 933-3464', website: 'https://www.weddingwire.com/wedding-cakes' },
+      { name: 'Zola Cake & Desserts', rating: 4.8, reviews: 176, priceRange: '$$', phone: '(888) 972-9652', website: 'https://www.zola.com/wedding-vendors/wedding-cakes' },
+      { name: 'Thumbtack Wedding Cakes', rating: 4.7, reviews: 143, priceRange: '$$$', phone: '(844) 776-2825', website: 'https://www.thumbtack.com/k/wedding-cakes/near-me' },
     ],
   };
 
@@ -728,8 +750,8 @@ function generateSampleVendors(location, categories, minRating) {
     const items = sampleData[cat] || [];
     for (const item of items) {
       if (minRating && item.rating < parseFloat(minRating)) continue;
-      // Add https:// to website if it doesn't have it
-      const website = item.website ? (item.website.startsWith('http') ? item.website : 'https://www.' + item.website) : '';
+      // Ensure website has proper protocol
+      const website = item.website || '';
       vendors.push({ ...item, category: cat, location: loc, contact: '', phone: item.phone || '', website: website });
     }
   }
