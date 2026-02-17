@@ -210,6 +210,23 @@ footer .logo span{color:var(--dusty-rose)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-loading{opacity:0.7;pointer-events:none}
 
+/* Calendar */
+.calendar{background:var(--white);border-radius:8px;padding:16px}
+.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.calendar-header h3{font-family:var(--font-heading);font-size:1.3rem;color:var(--charcoal)}
+.calendar-nav{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--charcoal);padding:4px 8px}
+.calendar-nav:hover{color:var(--dusty-rose)}
+.calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px}
+.calendar-weekday{text-align:center;font-size:0.75rem;font-weight:600;color:var(--warm-gray);padding:8px 0;text-transform:uppercase;letter-spacing:0.05em}
+.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calendar-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;font-size:0.9rem;transition:all 0.2s;background:var(--linen)}
+.calendar-day:hover{background:var(--blush)}
+.calendar-day.other-month{color:var(--warm-gray);opacity:0.4}
+.calendar-day.today{border:2px solid var(--dusty-rose)}
+.calendar-day.selected{background:var(--dusty-rose);color:var(--white);font-weight:600}
+.calendar-day.disabled{opacity:0.3;cursor:not-allowed;background:var(--sand)}
+.calendar-day.disabled:hover{background:var(--sand)}
+
 /* Responsive */
 @media(max-width:768px){
   .nav-inner{flex-direction:column;gap:12px}
@@ -275,6 +292,44 @@ footer .logo span{color:var(--dusty-rose)}
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- APPOINTMENT CALENDAR MODAL -->
+<div class="modal-overlay" id="appointment-modal">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close" onclick="closeAppointmentModal()">&times;</button>
+    <h2 id="appointment-modal-title">Schedule Appointment</h2>
+    <p class="modal-subtitle" id="appointment-vendor-name"></p>
+    <div id="appointment-calendar"></div>
+    <div id="appointment-details" style="display:none">
+      <div class="form-group">
+        <label>Appointment Type</label>
+        <select class="form-input" id="apt-type">
+          <option value="Consultation">Consultation</option>
+          <option value="Tasting">Tasting</option>
+          <option value="Tour">Tour / Venue Visit</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Trial">Trial Session</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Time</label>
+        <input type="time" class="form-input" id="apt-time" value="10:00">
+      </div>
+      <div class="form-group">
+        <label>Meeting Location</label>
+        <input type="text" class="form-input" id="apt-location" placeholder="Address or location name">
+      </div>
+      <div class="form-group">
+        <label>Contact Person</label>
+        <input type="text" class="form-input" id="apt-contact" placeholder="Contact name">
+      </div>
+      <div class="form-actions">
+        <button class="btn-outline" onclick="closeAppointmentModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveAppointment()">Schedule Appointment</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ==================== HOME PAGE ==================== -->
 <div id="page-home" class="page active">
@@ -1037,11 +1092,13 @@ async function loadEventVendors(eventId) {
             (v.contact ? '<div><strong>Contact:</strong> ' + escapeHtml(v.contact) + '</div>' : '') +
             (v.phone ? '<div><strong>Phone:</strong> <a href="tel:' + escapeHtml(v.phone) + '" style="color:var(--dusty-rose)">' + escapeHtml(v.phone) + '</a></div>' : '') +
           '</div>' : '') +
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;padding:12px;background:#f9f9f9;border-radius:8px">' +
-            '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Budgeted</label>' +
-            '<input type="number" value="' + budgeted + '" onchange="updateVendorBudget(' + v.id + ',this.value,null)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
-            '<div><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Actual Cost</label>' +
-            '<input type="number" value="' + actual + '" onchange="updateVendorBudget(' + v.id + ',null,this.value)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
+          '<div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;padding:12px;background:#f9f9f9;border-radius:8px">' +
+            '<div style="display:flex;gap:12px">' +
+              '<div style="flex:1"><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Budgeted</label>' +
+              '<input type="number" value="' + budgeted + '" onchange="updateVendorBudget(' + v.id + ',this.value,null)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
+              '<div style="flex:1"><label style="font-size:0.75rem;color:#666;display:block;margin-bottom:4px">Actual Cost</label>' +
+              '<input type="number" value="' + actual + '" onchange="updateVendorBudget(' + v.id + ',null,this.value)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:0.9rem" placeholder="$0"></div>' +
+            '</div>' +
           '</div>' +
           (v.notes ? '<div class="note-box"><strong>Note:</strong> ' + escapeHtml(v.notes) + '</div>' : '') +
           '<div class="vendor-actions">' +
@@ -1339,36 +1396,148 @@ async function promptVendorNote(id) {
   }
 }
 
-async function scheduleAppointment(vendorId, vendorName, vendorLocation) {
-  const type = prompt('Appointment type (e.g., Consultation, Tasting, Tour):');
-  if (!type) return;
+let appointmentVendorId = null;
+let appointmentVendorName = null;
+let appointmentVendorLocation = null;
+let selectedAppointmentDate = null;
 
-  const date = prompt('Enter appointment date (YYYY-MM-DD):');
-  if (!date) return;
+function scheduleAppointment(vendorId, vendorName, vendorLocation) {
+  appointmentVendorId = vendorId;
+  appointmentVendorName = vendorName;
+  appointmentVendorLocation = vendorLocation || '';
+  selectedAppointmentDate = null;
 
-  const time = prompt('Enter appointment time (HH:MM, e.g., 14:30):');
-  if (!time) return;
+  document.getElementById('appointment-vendor-name').textContent = 'Schedule with ' + vendorName;
+  document.getElementById('apt-location').value = vendorLocation || '';
+  document.getElementById('appointment-details').style.display = 'none';
 
-  const location = prompt('Meeting location:', vendorLocation || '');
-  const contactName = prompt('Contact person name:');
+  renderCalendar();
+  document.getElementById('appointment-modal').classList.add('active');
+}
+
+function closeAppointmentModal() {
+  document.getElementById('appointment-modal').classList.remove('active');
+  appointmentVendorId = null;
+  appointmentVendorName = null;
+  appointmentVendorLocation = null;
+  selectedAppointmentDate = null;
+}
+
+let currentCalendarMonth = new Date();
+
+function renderCalendar() {
+  const year = currentCalendarMonth.getFullYear();
+  const month = currentCalendarMonth.getMonth();
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const prevLastDay = new Date(year, month, 0);
+
+  const firstDayOfWeek = firstDay.getDay();
+  const lastDate = lastDay.getDate();
+  const prevLastDate = prevLastDay.getDate();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let calendarHtml = '<div class="calendar">';
+  calendarHtml += '<div class="calendar-header">';
+  calendarHtml += '<button class="calendar-nav" onclick="changeMonth(-1)">‹</button>';
+  calendarHtml += '<h3>' + firstDay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</h3>';
+  calendarHtml += '<button class="calendar-nav" onclick="changeMonth(1)">›</button>';
+  calendarHtml += '</div>';
+
+  calendarHtml += '<div class="calendar-weekdays">';
+  ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+    calendarHtml += '<div class="calendar-weekday">' + day + '</div>';
+  });
+  calendarHtml += '</div>';
+
+  calendarHtml += '<div class="calendar-days">';
+
+  // Previous month days
+  for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+    calendarHtml += '<div class="calendar-day other-month">' + (prevLastDate - i) + '</div>';
+  }
+
+  // Current month days
+  for (let day = 1; day <= lastDate; day++) {
+    const currentDate = new Date(year, month, day);
+    currentDate.setHours(0, 0, 0, 0);
+    const isPast = currentDate < today;
+    const isToday = currentDate.getTime() === today.getTime();
+    const isSelected = selectedAppointmentDate && selectedAppointmentDate.getTime() === currentDate.getTime();
+
+    let classes = 'calendar-day';
+    if (isPast) classes += ' disabled';
+    if (isToday) classes += ' today';
+    if (isSelected) classes += ' selected';
+
+    const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    calendarHtml += '<div class="' + classes + '" onclick="' + (isPast ? '' : 'selectDate(\'' + dateStr + '\')') + '">' + day + '</div>';
+  }
+
+  // Next month days
+  const remainingDays = 42 - (firstDayOfWeek + lastDate);
+  for (let day = 1; day <= remainingDays; day++) {
+    calendarHtml += '<div class="calendar-day other-month">' + day + '</div>';
+  }
+
+  calendarHtml += '</div></div>';
+
+  document.getElementById('appointment-calendar').innerHTML = calendarHtml;
+}
+
+function changeMonth(delta) {
+  currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() + delta);
+  renderCalendar();
+}
+
+function selectDate(dateStr) {
+  selectedAppointmentDate = new Date(dateStr + 'T00:00:00');
+  renderCalendar();
+  document.getElementById('appointment-details').style.display = 'block';
+}
+
+async function saveAppointment() {
+  if (!selectedAppointmentDate) {
+    showToast('Please select a date', 'error');
+    return;
+  }
+
+  const type = document.getElementById('apt-type').value;
+  const time = document.getElementById('apt-time').value;
+  const location = document.getElementById('apt-location').value;
+  const contactName = document.getElementById('apt-contact').value;
+
+  if (!time) {
+    showToast('Please select a time', 'error');
+    return;
+  }
 
   try {
+    const dateStr = selectedAppointmentDate.getFullYear() + '-' +
+      String(selectedAppointmentDate.getMonth() + 1).padStart(2, '0') + '-' +
+      String(selectedAppointmentDate.getDate()).padStart(2, '0');
+
     await API.post('/api/appointments', {
-      vendorId: vendorId,
+      vendorId: appointmentVendorId,
       eventId: currentEventId,
       type: type,
-      date: date,
+      date: dateStr,
       time: time,
-      location: location || '',
-      contactName: contactName || '',
+      location: location,
+      contactName: contactName,
       notes: '',
       status: 'pending'
     });
 
     // Update vendor status to appointment_set
-    await API.put('/api/vendors/' + vendorId + '/notes', { status: 'appointment_set' });
+    await API.put('/api/vendors/' + appointmentVendorId + '/notes', { status: 'appointment_set' });
 
-    showToast('Appointment scheduled with ' + vendorName, 'success');
+    showToast('Appointment scheduled with ' + appointmentVendorName, 'success');
+    closeAppointmentModal();
+
     if (currentEventId) {
       loadEventVendors(currentEventId);
       loadEventAppointments(currentEventId);
